@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@import url('https://fonts.googleapis.com/css2?family=Julius+Sans+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,700;1,500&family=Roboto:wght@500&display=swap');
+
+
+*{
+    font-family: 'Poppins', sans-serif;
+}
+
+.all-center{
+    @apply flex items-center justify-center;
+}
+
+.view-size{
+    @apply w-[92%] h-[90%];
+}
+
+.font-big-title {
+    @apply text-white font-extrabold text-center text-big; 
+    
+  }
+
+  
+/* login form section */
+.login-form{
+    width: 100%;
+}
+.login-form .css-input {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #d3d3d3;
+    border-radius: .4rem;
+    padding: 1rem;
+    background-color: transparent;
+  }
+
+.login-form input {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    flex-grow: 1;
+    background-color: transparent;
+}
+
+.css-button{
+    @apply bg-dark-green all-center text-white px-4 py-2 rounded-md font-bold
+}
+
+
+
+/* Default layout page*/
+
+.css-nav-li{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    
+}
+
+.css-nav-li img{
+    width: 40px;
+    height: 40px;
+}
+
+.css-nav-li p{
+    @apply text-small font-bold text-gray-500 
+}
+
+.css-nav-li-plus{
+    @apply bg-dark-green text-white all-center rounded-full;
+    width: 50px;
+    height: 50px;
+    margin-top: -4rem ;
+    font-size: 3rem;
+    
+    
+}
