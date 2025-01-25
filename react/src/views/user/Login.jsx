@@ -57,7 +57,7 @@ debugger;
             <img src={logo} alt="logo shareWise" width="80%" height="100%" />
             
           </div>
-          <form className='flex flex-col gap-4 login-form' onSubmit={onSubmit}>
+          <form className='flex flex-col gap-4 user-form' onSubmit={onSubmit}>
 
             {
               errors && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">

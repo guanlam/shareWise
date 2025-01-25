@@ -37,8 +37,7 @@ function Signup() {
         }
       })
     }
-// console.log(errors);
-// debugger;
+
   return (
     <div className='view-size rounded-lg all-center'>
       <div className='w-[100%] h-[100%] bg-dark-green rounded-lg all-center flex-col gap-8 p-4 order-2'>
@@ -52,7 +51,7 @@ function Signup() {
             <img src={logo} alt="logo shareWise" width="80%" height="100%" />
             
           </div>
-          <form className='flex flex-col gap-4 login-form' onSubmit={onSubmit}>
+          <form className='flex flex-col gap-4 user-form' onSubmit={onSubmit}>
 
             {
               errors && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">

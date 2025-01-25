@@ -31,7 +31,7 @@ function DefaultLayout() {
     // background div
     <div className='bg-gradient-to-b from-[#c0ebd7] to-[#1c312c] w-full h-screen all-center' >
       {/* main view div */}
-      <div className='view-size rounded-lg flex justify-between items-center flex-col gap-2'>
+      <div className='view-size rounded-lg flex justify-between items-center flex-col gap-4'>
         <header className='w-[100%] h-[10%] flex justify-between items-center'>
            <img src={logo} alt="logo shareWise" width="250px" height="100%" />
            <div className='all-center gap-1'>
@@ -48,7 +48,7 @@ function DefaultLayout() {
         </main>
         <footer className='bg-white w-[100%] h-[12vh] rounded-xl'>
           <nav className='w-[100%] h-[100%]'>
-            <ul className='flex justify-evenly items-center w-[100%] h-[100%]'>
+            <ul className='flex justify-around items-center w-[100%] h-[100%]'>
               <Link to='/dashboard'>
                 <li className='css-nav-li'>
                   <img src={dashboardIcon} alt="dashboard icon" />
