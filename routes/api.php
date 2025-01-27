@@ -2,11 +2,20 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\User;
 // use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Default model binding works for routes like /user/{user}, where Laravel knows {user} refers to the User model.
+// When you use a custom route like /user-profile/{user}, Laravel doesn't know how to resolve {user} unless you manually tell it    what to do. This is what Route::bind() does.
+// By adding Route::bind(), you explicitly tell Laravel to treat {user} as a User model, resolving it based on the ID in the URL.
 
+Route::bind('user', function ($value) {
+    return User::findOrFail($value); // Or use another method to fetch the user based on your requirement
+});
+
+//end
 
 
 Route::middleware('auth:sanctum')->group(function (){
@@ -15,8 +24,12 @@ Route::middleware('auth:sanctum')->group(function (){
     });
 
     Route::post('/logout',[AuthController::class, 'logout']);
-    Route::apiResource('/users', UserController::class);
+    
+    Route::put('/user-profile/{user}', [UserController::class, 'update']);
+    
+
 });
 
+//User module
 Route::post('/signup',[AuthController::class,'signup']);
 Route::post('/login',[AuthController::class,'login']);

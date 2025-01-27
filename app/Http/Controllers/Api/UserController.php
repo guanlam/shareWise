@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
+    
     /**
      * Display a listing of the resource.
      */
@@ -39,14 +40,14 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        //
         $data = $request->validated();
-        // if (isset($data['password'])) {
-        //     $data['password'] = bcrypt($data['password']);
-        // }
+        
+        // for debug purpose
+        // \Log::info('Updating user:', ['user_id' => $user->id, 'data' => $data]);
         $user->update($data);
 
-        return new UserResource($user);
+        //return new UserResource($user);
+        return response()->json(['message' => 'User updated successfully.'], 200);
     }
 
     /**

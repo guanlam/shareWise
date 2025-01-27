@@ -42,8 +42,7 @@ function Login() {
         }
       })
   }
-console.log(errors);
-debugger;
+
   return (
     <div className='view-size bg-slate-50 rounded-lg all-center'>
       <div className='w-[100%] h-[100%] bg-dark-green rounded-lg all-center flex-col gap-8 p-4'>
