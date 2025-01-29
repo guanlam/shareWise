@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\UpdateUserPasswordRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -46,7 +48,7 @@ class UserController extends Controller
         // \Log::info('Updating user:', ['user_id' => $user->id, 'data' => $data]);
         $user->update($data);
 
-        //return new UserResource($user);
+        
         return response()->json(['message' => 'User updated successfully.'], 200);
     }
 
@@ -56,5 +58,31 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+        $user->delete();
+        return response('', 204);
     }
+
+
+    public function updatePassword(UpdateUserPasswordRequest $request)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Manually check current password, since we want to validate against the stored password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'errors' => [
+                    'currentPassword' => ['Current password is incorrect.']
+                ]
+            ], 422);
+        }
+
+        // Update the user's password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Password updated successfully.'], 200);
+    }
+
+
 }

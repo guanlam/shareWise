@@ -9,6 +9,7 @@ export default {
         'dark-green': '#1c312c',
         'light-mint': '#c0ebd7',
         'light-cyan': '#ebf6f7',
+        'light-gray': '#adccbd'
       },
       fontSize: {
         small: 'clamp(0.5rem, 2vw, .9rem)',  

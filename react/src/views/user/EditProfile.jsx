@@ -3,11 +3,14 @@ import gmailIcon from '/image/user/icons8-gmail.png'
 import accountIcon from '/image/user/icons8-account.png'
 import { useStateContext } from '../../contexts/ContextProvider';
 import axiosClient from '../axios-client'
+import LoadingEffect from '../components/LoadingEffect2';
+import Notification from '../components/Notification';
 
 function EditProfile({setView}) {
-  const {user} = useStateContext();
+  const {user, setUser,notification,setNotification} = useStateContext();
   const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [loading,setLoading] = useState(false);
+
 
 
   const [userProfile, setUserProfie] = useState({
@@ -16,25 +19,33 @@ function EditProfile({setView}) {
       email: user.email,
   });
 
- 
 
   const onSubmit = (e) => {
       e.preventDefault();
 
       if (userProfile.id){
+          setLoading(true);
           axiosClient.put(`/user-profile/${userProfile.id}`, userProfile).then((res) => {
-              //TODO show notification
+              // show notification
+              setNotification(res.data.message);
+              setErrors('');
+              setLoading(false);
               
-              setSuccess(res.data.message);
-              console.log(success);
 
+              // Refresh user data after successful update
+              axiosClient.get('/user').then(({ data }) => {
+                setUser(data); // Update the user context
+              });
           }).catch((error) => {
               const response = error.response;
               if (response && response.status === 422){
                 setErrors(response.data.errors);
+                setLoading(false);
               }
             })
+
       }
+      
       }
   
 
@@ -46,18 +57,8 @@ function EditProfile({setView}) {
         <div className='flex flex-col gap-4'>
           <h2 className="font-bold text-lg mb-4">Edit Profile</h2>
 
-          {
-              errors && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                {Object.keys(errors).map((key) => (
-                  <p key={key}>{errors[key][0]}</p>
-                ))}
-              </div>
-          }
-          {success && (
-            <div className={`css-input ${success ? '!border-green-500' : ''}`}>
-              <p>{success}</p>
-            </div>
-          )}
+          {errors && <Notification message={Object.values(errors).flat().join(', ')} type="error" />}
+          {notification && <Notification message={notification} type="success" />}
 
 
           
@@ -74,9 +75,13 @@ function EditProfile({setView}) {
         <div className='flex justify-end items-center gap-4'>
           <button type="reset" className="bg-white text-black px-4 py-2 rounded-3xl text-small font-bold" onClick={() => setView('')}>Cancel</button>
           <button type="submit" className="bg-dark-green text-white px-4 py-2 rounded-3xl text-small font-bold" onClick={onSubmit}>Confirm</button>
+          
         </div>
         
+        
       </form>
+
+      {loading && <LoadingEffect /> }
     </div>
   );
 }

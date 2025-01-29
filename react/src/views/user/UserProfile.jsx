@@ -15,6 +15,18 @@ function UserProfile({ setView }) {
                 setToken(null)
             })
         }
+    const onDelete = (u) => {
+        if (!window.confirm('Are you sure you want to delete this user?')){
+            return;
+            }
+    
+        axiosClient.delete(`/user-delete/${user.id}`).then(() => {
+            setUser({});
+            setToken(null);
+            
+        })
+        }
+
     return (
         <div className="size-[100%] p-6 rounded-lg flex justify-between flex-col">
             <div>
@@ -36,7 +48,7 @@ function UserProfile({ setView }) {
                     </div>
                 </div>
                 {/* line */}
-                <div className='w-[100%] h-[3px] bg-gray-300'></div>
+                <div className='w-[100%] h-[3px] bg-light-gray'></div>
 
 
                 <div className="mt-8">
@@ -59,7 +71,7 @@ function UserProfile({ setView }) {
 
             <div className='all-center flex-col'>
                 <button className="block mb-2 text-small font-semibold underline" onClick={onLogout}>Log Out</button>
-                <button className="block text-small font-semibold text-red-500">Delete Account</button>
+                <button className="block text-small font-semibold text-red-500" onClick={onDelete}>Delete Account</button>
             </div>
         </div>
     );
