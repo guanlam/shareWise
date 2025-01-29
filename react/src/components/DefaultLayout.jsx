@@ -32,7 +32,7 @@ function DefaultLayout() {
     <div className='bg-gradient-to-b from-[#c0ebd7] to-[#1c312c] w-full h-screen all-center' >
       {/* main view div */}
       <div className='view-size rounded-lg flex justify-between items-center flex-col gap-4'>
-        <header className='w-[100%] h-[10%] flex justify-between items-center'>
+        <header className='w-[100%] h-[10vh] flex justify-between items-center'>
            <img src={logo} alt="logo shareWise" width="250px" height="100%" />
            <div className='all-center gap-1'>
               <p>Hi,</p>
@@ -43,7 +43,7 @@ function DefaultLayout() {
            </div>
            
         </header >
-        <main className='w-[100%] h-[100%] rounded-xl'>
+        <main className='w-[100%] h-[100%] rounded-xl overflow-y-auto'>
               <Outlet />
         </main>
         <footer className='bg-white w-[100%] h-[12vh] rounded-xl'>

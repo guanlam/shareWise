@@ -13,11 +13,14 @@ export default {
       },
       fontSize: {
         small: 'clamp(0.5rem, 2vw, .9rem)',  
-        medium: 'clamp(1rem, 3vw, 1.5rem)', 
-        big: 'clamp(1rem, 4vw, 2rem)',     
+        medium: 'clamp(1rem, 3vw, 1.3rem)',
+        large: 'clamp(.9rem,4vw,1.2rem)',
+        big: 'clamp(1rem, 4vw, 1.8rem)',     
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
 }
 
