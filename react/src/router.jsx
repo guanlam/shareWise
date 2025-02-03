@@ -7,6 +7,7 @@ import GuestLayout from './components/GuestLayout';
 import NotFound from './views/NotFound';
 import User from './views/user/User';
 import Transaction from './views/transaction/Transaction';
+import AddTransaction from './views/transaction/addTransaction/AddTransaction';
 
 
 
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
             {
                 path: '/transaction',
                 element: <Transaction />
+            },
+            {
+                path: '/addTransaction',
+                element: <AddTransaction />
             },
             // {
             //     path: '/users/new',

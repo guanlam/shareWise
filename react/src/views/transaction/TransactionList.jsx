@@ -20,9 +20,9 @@ function TransactionList({ transactions }) {
   };
 
   return (
-    <div className="bg-light-mint rounded-xl p-4 size-[100%] flex flex-col">
-      <h2 className="text-xl font-semibold mb-3">Transactions</h2>
-      <div className="overflow-y-auto h-[100%] scrollbar-thin scrollbar-thumb-dark-green scrollbar-track-slate-50 pr-2">
+    <div className="p-4 size-full flex flex-col">
+      <h2 className="text-large font-semibold mb-3">Transactions</h2>
+      <div className="css-scrollbar">
         {Object.keys(groupedTransactions).map((date) => (
           <div key={date} className="mb-4 bg-white p-4 rounded-xl">
             {/* Date and Total Amount */}

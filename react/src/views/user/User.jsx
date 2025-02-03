@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import UserProfile from './UserProfile';
 import EditProfile from './EditProfile';
 import ChangePassword from './ChangePassword';
+import Section from '../components/Section';
 
 function User() {
-    const [view, setView] = useState('')
-    
+    const [view, setView] = useState('');
 
     return (
-        <div className={`flex gap-4 size-[100%] ${view ? 'justify-between' : 'justify-center'}`}>
+        /* flex-wrap for responsive design*/
+        <div className={`flex gap-4 size-[100%] ${view ? 'justify-between' : 'justify-center'} flex-wrap`}>
             {/* Left Side: User Profile */}
-            <div className="w-[40%] h-[100%] bg-light-mint rounded-xl">
+            <Section className="bg-light-mint">
                 <UserProfile setView={setView} />
-            </div>
+            </Section>
 
             {/* Right Side: Dynamic Content */}
-            {view && 
-                <div className="w-[40%] bg-light-mint rounded-xl">
+            {view && (
+                <Section className="bg-light-mint">
                     {view === 'editProfile' && <EditProfile setView={setView} />}
                     {view === 'changePassword' && <ChangePassword setView={setView} />}
-                </div> 
-            }
-            
+                </Section>
+            )}
         </div>
-    )
+    );
 }
 
-export default User
+export default User;

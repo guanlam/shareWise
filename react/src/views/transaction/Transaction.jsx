@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import BalanceSummary from "./BalanceSummary";
 import TransactionFilter from "./TransactionFilter";
 import TransactionList from "./TransactionList";
+import Section from "../components/Section";
 
 function Transaction() {
     // Sample transactions (you can replace with API data)
@@ -75,9 +76,9 @@ function Transaction() {
 
 
     return (
-        <div className="flex gap-4 size-[100%] justify-between">
+        <div className="flex gap-4 size-[100%] justify-between flex-wrap">
             {/* Left Side: Balance Summary & Transaction Filter */}
-            <div className="w-[40%] h-[100%] flex flex-col gap-4  rounded-xl">
+            <Section className="flex flex-col gap-4">
                 <BalanceSummary
                     balance={balance}
                     income={income}
@@ -88,12 +89,14 @@ function Transaction() {
                     setSelectedMonth={setSelectedMonth}
                     resetFilters={() => setSelectedMonth(currentMonth)}
                 />
-            </div>
+            </Section>
 
             {/* Right Side: Transaction List */}
-            <div className="w-[40%] h-[100%] flex flex-col gap-4 rounded-xl bg-light-mint p-4">
+            <Section className="flex flex-col gap-4 bg-light-mint p-4">
                 <TransactionList transactions={filteredTransactions} />
-            </div>
+            </Section>
+
+
         </div>
     );
 }

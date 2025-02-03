@@ -62,7 +62,7 @@ function DefaultLayout() {
                 </li>
               </Link>
 
-              <Link to='/budget'>
+              <Link to='/addTransaction'>
                 <li className='css-nav-li-plus'>+</li>
               </Link>
 

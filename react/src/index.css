@@ -24,11 +24,14 @@
     @apply text-white font-extrabold text-center text-big; 
     
   }
-
+.css-scrollbar{
+    @apply overflow-y-auto overflow-x-hidden h-[100%] scrollbar-thin scrollbar-thumb-dark-green scrollbar-track-slate-50 pr-2;
+}
   
 /* login form section */
 .user-form{
     width: 100%;
+    
 }
 .user-form .css-input {
     display: flex;
@@ -83,4 +86,26 @@
     font-size: 3rem;
     
     
+}
+
+
+/*Add Transaction page*/
+
+.tran-form .css-input {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* border-bottom: 1px solid #adccbd; */
+    padding: calc(2% + .2rem) 0;
+    background-color: transparent;
+  }
+
+.tran-form input {
+    outline: none;
+    flex-grow: 1;
+    background-color: transparent;
+    
+}
+.tran-form input::placeholder{
+    color: #798f86;
 }
