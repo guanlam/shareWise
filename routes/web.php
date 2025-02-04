@@ -1,7 +1,8 @@
 <?php
 
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return Transaction::with('participants')->get();
 });

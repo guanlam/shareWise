@@ -36,7 +36,7 @@ class Transaction extends Model
     // This is for group expenses.
     public function participants()
     {
-        return $this->belongsToMany(Participant::class)
+        return $this->belongsToMany(Participant::class, 'transaction_participants')
                     ->withPivot('amount_owed', 'payment_status')
                     ->withTimestamps();
     }

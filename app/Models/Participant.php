@@ -14,7 +14,7 @@ class Participant extends Model
     // A participant is related to many transactions
     public function transactions()
     {
-        return $this->belongsToMany(Transaction::class)
+        return $this->belongsToMany(Transaction::class, 'transaction_participants')
                     ->withPivot('amount_owed', 'payment_status')
                     ->withTimestamps();
     }
