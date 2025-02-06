@@ -10,7 +10,7 @@ function TransactionItem({ transaction }) {
     iconMappings["Default"];
 
   return (
-    <div className="py-2 rounded-lg flex justify-between items-center">
+    <div className="py-2 rounded-lg flex justify-between items-center hover:bg-gray-100">
       <div className="flex items-center gap-3">
         <div className="w-[2.5rem] h-[2.5rem] bg-slate-500 flex items-center justify-center rounded-full">
           {IconComponent ? (

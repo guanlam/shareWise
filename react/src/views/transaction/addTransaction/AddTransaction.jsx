@@ -10,11 +10,14 @@ import PaymentMethod from './PaymentMethod';
 
 function AddTransaction() {
     const [transaction, setTransaction] = useState({
+        type: "Expense",
         amount: 0,
         category: "Food & Drink",
         method: "Debit Card",
         date: new Date().toISOString().split("T")[0],
         recurrence: "None",
+        description: "",
+        
     });
 
     const [activePanel, setActivePanel] = useState("calculator");
@@ -41,7 +44,7 @@ function AddTransaction() {
                         ) : activePanel === "paymentMethod" ? (
                             <PaymentMethod />
                         ) : activePanel === "category" ? (
-                            <Category />
+                            <Category transaction={transaction} />
                         ) : null
                     }
                 </Section>
