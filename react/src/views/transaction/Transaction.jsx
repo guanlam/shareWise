@@ -1,104 +1,90 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BalanceSummary from "./BalanceSummary";
 import TransactionFilter from "./TransactionFilter";
 import TransactionList from "./TransactionList";
 import Section from "../components/Section";
+import axiosClient from "../axios-client";
 
 function Transaction() {
-    // Sample transactions (you can replace with API data)
-    const allTransactions = [
-        {
-            id: 1,
-            category: "Food & Beverage",
-            method: "Cash",
-            description: "Pan Mee",
-            amount: -9.9,
-            date: "2024-11-05",
-        },
-        {
-            id: 2,
-            category: "Food & Beverage",
-            method: "Debit Card",
-            description: "Pan Mee",
-            amount: -9.9,
-            date: "2024-11-05",
-        },
-        {
-            id: 3,
-            category: "Food & Beverage",
-            method: "Today",
-            description: "Pan Mee",
-            amount: 9.9,
-            date: "2024-11-05",
-        },
-        {
-            id: 4,
-            category: "Food & Beverage",
-            method: "Today",
-            description: "Pan Mee",
-            amount: -9.9,
-            date: "2024-11-04",
-        },
-        {
-            id: 5,
-            category: "Food & Beverage",
-            method: "Today",
-            description: "Pan Mee",
-            amount: -9.9,
-            date: "2024-11-04",
-        },
-        {
-            id: 6,
-            category: "Food & Beverage",
-            method: "Today",
-            description: "Pan Mee",
-            amount: -9.9,
-            date: "2024-11-04",
-        },
-    ];
+  // State to hold all transactions fetched from the API
+  const [allTransactions, setAllTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const [selectedMonth, setSelectedMonth] = useState(10); // Default to November
-    const filteredTransactions = allTransactions.filter((txn) => {
-        return new Date(txn.date).getMonth() === selectedMonth;
-    });
-
-    // Calculate balance summary
-    const income = allTransactions
-        .filter((t) => t.amount > 0)
-        .reduce((sum, t) => sum + t.amount, 0);
-    const expense = allTransactions
-        .filter((t) => t.amount < 0)
-        .reduce((sum, t) => sum + t.amount, 0);
-    const balance = income + expense;
+  // State to hold the selected month (0 = January, 11 = December)
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
 
 
-    const currentMonth = new Date().getMonth();
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  // Fetch transactions on component mount
+  useEffect(() => {
+    axiosClient.get("/transactions")
+      .then((res) => {
+        // Transform each transaction: if Expense, make adjustedAmount negative
+        const transformed = res.data.map((txn) => ({
+          ...txn,
+          adjustedAmount:
+            txn.type === "Expense"
+              ? -parseFloat(txn.amount)
+              : parseFloat(txn.amount),
+        }));
+        setAllTransactions(transformed);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
+  // Filter transactions by the selected month using the date property
+  const filteredTransactions = allTransactions.filter((txn) => {
+    const txnDate = new Date(txn.date);
+    return txnDate.getMonth() === selectedMonth && txnDate.getFullYear() === selectedYear;
+  });
 
-    return (
-        <div className="flex gap-4 size-[100%] justify-between flex-wrap">
-            {/* Left Side: Balance Summary & Transaction Filter */}
-            <Section className="flex flex-col gap-4">
-                <BalanceSummary
-                    balance={balance}
-                    income={income}
-                    expense={Math.abs(expense)}
-                />
-                <TransactionFilter
-                    selectedMonth={selectedMonth}
-                    setSelectedMonth={setSelectedMonth}
-                    resetFilters={() => setSelectedMonth(currentMonth)}
-                />
-            </Section>
+  // Calculate summary values based on filtered transactions
+  const filteredIncome = filteredTransactions
+    .filter((t) => t.type === "Income")
+    .reduce((sum, t) => sum + parseFloat(t.adjustedAmount ?? t.amount), 0);
+  const filteredExpense = filteredTransactions
+    .filter((t) => t.type === "Expense")
+    .reduce((sum, t) => sum + parseFloat(t.adjustedAmount ?? t.amount), 0);
+  const filteredBalance = filteredIncome + filteredExpense;
 
-            {/* Right Side: Transaction List */}
-            <Section className="flex flex-col gap-4 bg-light-mint p-4">
-                <TransactionList transactions={filteredTransactions} />
-            </Section>
+  return (
+    <div className="flex gap-4 size-[100%] justify-between flex-wrap">
+      {/* Left Side: Balance Summary & Transaction Filter */}
+      <Section className="flex flex-col gap-4">
+        <BalanceSummary
+          balance={filteredBalance}
+          income={filteredIncome}
+          expense={Math.abs(filteredExpense)}
+        />
+        <TransactionFilter
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          resetFilters={() => {
+            setSelectedMonth(currentMonth);
+            setSelectedYear(currentYear);
+          }}
+        />
+      </Section>
 
-
-        </div>
-    );
+      {/* Right Side: Transaction List */}
+      <Section className="flex flex-col gap-4 bg-light-mint p-4">
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <TransactionList transactions={filteredTransactions} />
+        )}
+      </Section>
+    </div>
+  );
 }
 
 export default Transaction;

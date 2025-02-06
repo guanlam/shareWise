@@ -40,5 +40,13 @@ class Transaction extends Model
                     ->withPivot('amount_owed', 'payment_status')
                     ->withTimestamps();
     }
+
+    public function recurrence()
+    {
+        return $this->hasOne(Recurrence::class);
+    }
+    
+    
+
 }
 

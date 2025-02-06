@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
 use App\Models\User;
 // use App\Http\Controllers\Api\UserController;
@@ -28,6 +29,19 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::put('/user-profile/{user}', [UserController::class, 'update']);
     Route::put('/user-password', [UserController::class, 'updatePassword']);
     Route::delete('/user-delete/{user}', [UserController::class, 'destroy']);
+
+    //Transaction module
+    Route::apiResource('transactions', TransactionController::class); 
+    //GET /api/transactions 
+    //POST /api/transactions 
+    //PUT /api/transactions/{id} 
+    //DELETE /api/transactions/{id}
+
+    
+
+
+
+
 
 });
 

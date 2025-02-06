@@ -109,3 +109,13 @@
 .tran-form input::placeholder{
     color: #798f86;
 }
+
+
+#recurrence {
+    all: unset;
+    width: 100%;
+}
+
+#recurrence option {
+    @apply bg-dark-green text-white;
+}

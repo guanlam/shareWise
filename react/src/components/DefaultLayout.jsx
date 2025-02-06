@@ -43,7 +43,7 @@ function DefaultLayout() {
            </div>
            
         </header >
-        <main className='w-[100%] h-[100%] rounded-xl overflow-y-auto'>
+        <main className='size-full overflow-y-auto'>
               <Outlet />
         </main>
         <footer className='bg-white w-[100%] h-[12vh] rounded-xl'>

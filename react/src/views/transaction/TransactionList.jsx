@@ -6,17 +6,29 @@ function TransactionList({ transactions }) {
   const groupedTransactions = transactions.reduce((acc, transaction) => {
     const date = transaction.date;
     if (!acc[date]) acc[date] = { transactions: [], total: 0 };
+
+    // Use adjustedAmount if available, otherwise use the original amount
+    const amount = transaction.adjustedAmount !== undefined 
+      ? transaction.adjustedAmount 
+      : transaction.amount;
+
     acc[date].transactions.push(transaction);
-    acc[date].total += transaction.amount; // Sum up total per day
+    acc[date].total += amount; // Sum up total per day
     return acc;
   }, {});
 
   // Function to format date as "Tues. 05/11/2024"
   const formatDate = (dateString) => {
-    const options = { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" };
+    const options = {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    };
+    // Format using en-GB and replace the comma for your desired format
     return new Intl.DateTimeFormat("en-GB", options)
       .format(new Date(dateString))
-      .replace(",", "."); // Convert "Tue, 05/11/2024" to "Tues. 05/11/2024"
+      .replace(",", ".");
   };
 
   return (
@@ -30,9 +42,7 @@ function TransactionList({ transactions }) {
               <p className="text-gray-600 font-medium p-1">
                 {formatDate(date)}
               </p>
-              <p
-                className="text-small text-gray-400"
-              >
+              <p className="text-small text-gray-400">
                 {groupedTransactions[date].total < 0
                   ? `-RM ${Math.abs(groupedTransactions[date].total).toFixed(2)}`
                   : `RM ${groupedTransactions[date].total.toFixed(2)}`}

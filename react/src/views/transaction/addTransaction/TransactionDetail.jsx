@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CalendarToday, Repeat, Payment } from "@mui/icons-material";
+import { CalendarToday, Repeat, Payment, Calculate } from "@mui/icons-material";
 import TransactionInput from "./TransactionInput";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DebitCardIcon from '@mui/icons-material/CreditCard';
@@ -11,15 +11,20 @@ import GroupIcon from '@mui/icons-material/Group';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Switch from '@mui/material/Switch';
 import CustomSwitch from "../../components/CustomSwitch";
+import BasicDatePicker from "./BasicDatePicker";
 
-function TransactionDetail({ transaction, setTransaction }) {
+
+
+function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
     const [isGroupExpense, setIsGroupExpense] = useState(false);
-    
+    const [amount, setAmount] = useState("");
 
     // Handle switch toggle
     const handleSwitchToggle = (event) => {
       setIsGroupExpense(event.target.checked);
     };
+
+    
 
     return (
         <div className="p-6 flex flex-col gap-4 size-full">
@@ -38,16 +43,16 @@ function TransactionDetail({ transaction, setTransaction }) {
             </div>
 
             <form action="" className="tran-form css-scrollbar">
-                <div className="css-input">
+                <div className="css-input" onClick={() => setActivePanel("calculator")}>
                     <label className="text-medium font-semibold">RM</label>
-                    <input type="text" placeholder="0" className="text-big" />
+                    <input type="text" placeholder="0" className="text-big" value={transaction.amount || amount} onChange={(e)=> setAmount(e.target.value)} />
                 </div>
                 <div className="w-full h-[2px] bg-black mb-4"></div>
 
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <div className="text-small text-[#798f86]"><h5>Category</h5></div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center" onClick={() => setActivePanel("category")}>
                             <div className="flex items-center gap-4">
                                 <div className="size-[2.5rem] bg-yellow-400 all-center rounded-xl">
                                     <span className="text-white "><FoodnDrinkIcon /></span>
@@ -63,7 +68,7 @@ function TransactionDetail({ transaction, setTransaction }) {
 
                     <div className="flex flex-col gap-2">
                         <div className="text-small text-[#798f86]"><h5>Payment Method</h5></div>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center" onClick={() => setActivePanel("paymentMethod")}>
                             <div className="flex items-center gap-4">
                                 <div className="size-[2.5rem] bg-slate-500 all-center rounded-xl">
                                     <span className="text-white"><DebitCardIcon /></span>
@@ -85,11 +90,11 @@ function TransactionDetail({ transaction, setTransaction }) {
                                 <div className="size-[2.5rem] bg-cyan-500 all-center rounded-xl">
                                     <span className="text-white"><CalendarMonthIcon /></span>
                                 </div>
-                                <h3>Tues. 05/11/2024</h3>
+                                <BasicDatePicker/>                                
+                                
+                                
                             </div>
-                            <div>
-                                <ChevronRightIcon fontSize='large'/>
-                            </div>
+                            
                         </div>
                     </div>
                     <div className="w-full h-[1px] bg-[#adccbd]"></div>
@@ -97,15 +102,19 @@ function TransactionDetail({ transaction, setTransaction }) {
                     <div className="flex flex-col gap-2">
                         <div className="text-small text-[#798f86]"><h5>Recurrence</h5></div>
                         <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 w-full">
                                 <div className="size-[2.5rem] bg-teal-500 all-center rounded-xl">
                                     <span className="text-white"><RecurrenceIcon /></span>
                                 </div>
-                                <h3>Food & Drink</h3>
+                                <select id="recurrence" name="recurrence">
+                                    <option value="none">None</option>
+                                    <option value="apple">Daily</option>
+                                    <option value="banana">Weekly</option>
+                                    <option value="orange">Monthly</option>
+                                    <option value="grape">Yearly</option>
+                                </select>
                             </div>
-                            <div>
-                                <ChevronRightIcon fontSize='large'/>
-                            </div>
+                            
                         </div>
                     </div>
                     <div className="w-full h-[1px] bg-[#adccbd]"></div>
