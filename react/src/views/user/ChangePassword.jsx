@@ -4,6 +4,7 @@ import passwordIcon from '/image/user/icons8-password.png';
 import LoadingEffect from '../components/LoadingEffect2';
 import { useStateContext } from '../../contexts/ContextProvider';
 import Notification from '../components/Notification';
+import CustomButton from '../components/CustomButton';
 
 function ChangePassword({ setView }) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -95,19 +96,21 @@ function ChangePassword({ setView }) {
         </div>
 
         <div className="flex justify-end items-center gap-4">
-          <button
+          {/* Cancel Button */}
+          <CustomButton
             type="reset"
-            className="bg-white text-black px-4 py-2 rounded-3xl text-small font-bold"
+            className="bg-white text-black"
+            text="Cancel"
             onClick={() => setView('')}
-          >
-            Cancel
-          </button>
-          <button
+          />
+
+          {/* Confirm Button */}
+          <CustomButton
             type="submit"
-            className="bg-dark-green text-white px-4 py-2 rounded-3xl text-small font-bold"
-          >
-            Confirm
-          </button>
+            className="bg-dark-green text-white"
+            text="Confirm"
+            
+          />
         </div>
       </form>
       {loading && <LoadingEffect /> }

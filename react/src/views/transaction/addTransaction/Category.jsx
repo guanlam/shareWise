@@ -28,7 +28,9 @@ function Category({ transaction }) {
           <section className='space-y-4 size-full flex flex-col'>
             <div className="flex justify-between items-center">
               <h2 className='text-medium font-semibold'>Category</h2>
-              <SettingsOutlinedIcon fontSize="large" />
+              <div className='cursor-pointer'>
+                <SettingsOutlinedIcon fontSize="large" />
+              </div>
             </div>
             
             {/* Scrollable Category List */}

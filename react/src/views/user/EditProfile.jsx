@@ -5,6 +5,7 @@ import { useStateContext } from '../../contexts/ContextProvider';
 import axiosClient from '../axios-client'
 import LoadingEffect from '../components/LoadingEffect2';
 import Notification from '../components/Notification';
+import CustomButton from '../components/CustomButton';
 
 function EditProfile({setView}) {
   const {user, setUser,notification,setNotification} = useStateContext();
@@ -52,7 +53,7 @@ function EditProfile({setView}) {
   return (
     <div className="p-6 rounded-lg size-[100%]">
       
-      <form className='user-form flex justify-between flex-col size-[100%]'>
+      <form className='user-form flex justify-between flex-col size-[100%]' onSubmit={onSubmit}>
       
         <div className='flex flex-col gap-4'>
           <h2 className="font-bold text-lg mb-4">Edit Profile</h2>
@@ -73,8 +74,21 @@ function EditProfile({setView}) {
         </div>
         
         <div className='flex justify-end items-center gap-4'>
-          <button type="reset" className="bg-white text-black px-4 py-2 rounded-3xl text-small font-bold" onClick={() => setView('')}>Cancel</button>
-          <button type="submit" className="bg-dark-green text-white px-4 py-2 rounded-3xl text-small font-bold" onClick={onSubmit}>Confirm</button>
+          {/* Cancel Button */}
+          <CustomButton
+            type="reset"
+            className="bg-white text-black"
+            text="Cancel"
+            onClick={() => setView('')}
+          />
+
+          {/* Confirm Button */}
+          <CustomButton
+            type="submit"
+            className="bg-dark-green text-white"
+            text="Confirm"
+            
+          />
           
         </div>
         

@@ -100,13 +100,13 @@
     background-color: transparent;
   }
 
-.tran-form input {
+.tran-form input, .popUp-form input {
     outline: none;
     flex-grow: 1;
     background-color: transparent;
     
 }
-.tran-form input::placeholder{
+.tran-form input::placeholder, .popUp-form input::placeholder{
     color: #798f86;
 }
 
@@ -119,3 +119,7 @@
 #recurrence option {
     @apply bg-dark-green text-white;
 }
+
+
+
+
