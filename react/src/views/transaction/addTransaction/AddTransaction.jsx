@@ -42,7 +42,7 @@ function AddTransaction() {
                             setActivePanel={setActivePanel}
                             />
                         ) : activePanel === "paymentMethod" ? (
-                            <PaymentMethod />
+                            <PaymentMethod transaction={transaction} />
                         ) : activePanel === "category" ? (
                             <Category transaction={transaction} />
                         ) : null

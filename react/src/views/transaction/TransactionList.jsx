@@ -1,7 +1,12 @@
 import React from "react";
 import TransactionItem from "./TransactionItem";
+import LoadingEffect from "../components/LoadingEffect";
 
-function TransactionList({ transactions }) {
+function TransactionList({ transactions, loading }) {
+  
+
+
+
   // Group transactions by date
   const groupedTransactions = transactions.reduce((acc, transaction) => {
     const date = transaction.date;
@@ -32,35 +37,44 @@ function TransactionList({ transactions }) {
   };
 
   return (
-    <div className="p-4 size-full flex flex-col">
-      <h2 className="text-large font-semibold mb-3">Transactions</h2>
-      <div className="css-scrollbar">
-        {Object.keys(groupedTransactions).map((date) => (
-          <div key={date} className="mb-4 bg-white p-4 rounded-xl">
-            {/* Date and Total Amount */}
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-gray-600 font-medium p-1">
-                {formatDate(date)}
-              </p>
-              <p className="text-small text-gray-400">
-                {groupedTransactions[date].total < 0
-                  ? `-RM ${Math.abs(groupedTransactions[date].total).toFixed(2)}`
-                  : `RM ${groupedTransactions[date].total.toFixed(2)}`}
-              </p>
-            </div>
-            
-            <hr className="mb-2" />
+    <>
+      <div className="p-4 size-full flex flex-col">
+        {loading ?  <LoadingEffect/> : 
+          <>
+            <h2 className="text-large font-semibold mb-3">Transactions</h2>
+            <div className="css-scrollbar">
+              {Object.keys(groupedTransactions).map((date) => (
+                <div key={date} className="mb-4 bg-white p-4 rounded-xl">
+                  {/* Date and Total Amount */}
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-gray-600 font-medium p-1">
+                      {formatDate(date)}
+                    </p>
+                    <p className="text-small text-gray-400">
+                      {groupedTransactions[date].total < 0
+                        ? `-RM ${Math.abs(groupedTransactions[date].total).toFixed(2)}`
+                        : `RM ${groupedTransactions[date].total.toFixed(2)}`}
+                    </p>
+                  </div>
+                  
+                  <hr className="mb-2" />
 
-            {/* Transactions List */}
-            <div className="flex flex-col gap-2">
-              {groupedTransactions[date].transactions.map((transaction) => (
-                <TransactionItem key={transaction.id} transaction={transaction} />
+                  {/* Transactions List */}
+                  <div className="flex flex-col gap-2">
+                    {groupedTransactions[date].transactions.map((transaction) => (
+                      <TransactionItem key={transaction.id} transaction={transaction} />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        ))}
+          </>
+          
+        }
+        
       </div>
-    </div>
+    </>
+    
   );
 }
 

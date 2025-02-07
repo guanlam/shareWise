@@ -4,6 +4,7 @@ import TransactionFilter from "./TransactionFilter";
 import TransactionList from "./TransactionList";
 import Section from "../components/Section";
 import axiosClient from "../axios-client";
+import LoadingEffect2 from "../components/LoadingEffect2";
 
 function Transaction() {
   // State to hold all transactions fetched from the API
@@ -77,11 +78,9 @@ function Transaction() {
 
       {/* Right Side: Transaction List */}
       <Section className="flex flex-col gap-4 bg-light-mint p-4">
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <TransactionList transactions={filteredTransactions} />
-        )}
+      
+        <TransactionList transactions={filteredTransactions} loading={loading} />
+        
       </Section>
     </div>
   );

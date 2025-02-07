@@ -86,13 +86,13 @@ function Signup() {
             </div>
 
             <div className='css-button'>
-              <button>Login</button>
+              <button>Sign up</button>
             </div>
           </form>
 
           <div className='flex gap-2 whitespace-nowrap text-small'>
             <p className='text-gray-500'>Already have an account?</p>
-            <Link to="/login" className='underline font-semibold'>login now</Link>
+            <Link to="/login" className='underline font-semibold'>Login</Link>
           </div>
         </section>
         
