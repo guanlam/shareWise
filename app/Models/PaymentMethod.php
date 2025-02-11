@@ -9,7 +9,7 @@ class PaymentMethod extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'icon', 'user_id'];
+    protected $fillable = ['name', 'icon', 'color' ,'user_id'];
 
     // A payment method belongs to a user
     public function user()

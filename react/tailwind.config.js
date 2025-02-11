@@ -12,10 +12,10 @@ export default {
         'light-gray': '#adccbd'
       },
       fontSize: {
-        small: 'clamp(0.5rem, 2vw, .9rem)',  
+        small: 'clamp(0.7rem, 2vw, 1rem)',  
         medium: 'clamp(.9rem, 3vw, 1.2rem)',
-        large: 'clamp(1rem,4vw,1.4rem)',
-        big: 'clamp(1.2rem, 4vw, 1.8rem)',     
+        large: 'clamp(1.1rem,4vw,1.4rem)',
+        big: 'clamp(1.3rem, 4vw, 1.6rem)',     
       },
     },
   },

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePaymentMethodRequest;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,9 +28,20 @@ class PaymentMethodController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePaymentMethodRequest $request)
     {
-        //
+        $data = $request->validated();
+        $paymentMethod = PaymentMethod::create([
+            ...$data,
+            'user_id' => Auth::id(),
+
+        ]);
+
+        return response()->json([
+            'message' => 'Payment Method created successfully.',
+            'payment_method' => $paymentMethod
+        ], 201);
+
     }
 
     /**

@@ -36,6 +36,12 @@ import FlightIcon from '@mui/icons-material/Flight';
 import TwoWheelerIcon from '@mui/icons-material/TwoWheeler';
 import DirectionsSubwayIcon from '@mui/icons-material/DirectionsSubway';
 
+
+//payment
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import SavingsIcon from '@mui/icons-material/Savings';
+
+
 // Create a mapping of icon names from the database to Material UI components
 const iconMappings = {
   Fastfood: FastfoodIcon,
@@ -73,6 +79,14 @@ const iconMappings = {
   Flight: FlightIcon,
   TwoWheeler: TwoWheelerIcon,
   DirectionsSubway: DirectionsSubwayIcon,
+
+  //Payment
+  CardGiftcard: CardGiftcardIcon,
+  Savings: SavingsIcon,
+
+
+
+
 };
 
 export default iconMappings;

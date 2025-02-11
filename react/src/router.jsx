@@ -8,6 +8,9 @@ import NotFound from './views/NotFound';
 import User from './views/user/User';
 import Transaction from './views/transaction/Transaction';
 import AddTransaction from './views/transaction/addTransaction/AddTransaction';
+import ExpenseByCategory from './views/dashboard/ExpenseByCategory';
+import Dashboard from './views/dashboard/Dashboard';
+
 
 
 
@@ -31,6 +34,10 @@ const router = createBrowserRouter([
             {
                 path: '/addTransaction',
                 element: <AddTransaction />
+            },
+            {
+                path: '/dashboard',
+                element: <Dashboard />
             },
             // {
             //     path: '/users/new',

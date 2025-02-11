@@ -79,7 +79,7 @@ function Transaction() {
       {/* Right Side: Transaction List */}
       <Section className="flex flex-col gap-4 bg-light-mint p-4">
       
-        <TransactionList transactions={filteredTransactions} loading={loading} />
+        <TransactionList title="Transactions" transactions={filteredTransactions} loading={loading} />
         
       </Section>
     </div>

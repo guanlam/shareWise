@@ -2,7 +2,7 @@ import React from "react";
 import TransactionItem from "./TransactionItem";
 import LoadingEffect from "../components/LoadingEffect";
 
-function TransactionList({ transactions, loading }) {
+function TransactionList({ title , transactions, loading }) {
   
 
 
@@ -41,7 +41,7 @@ function TransactionList({ transactions, loading }) {
       <div className="p-4 size-full flex flex-col">
         {loading ?  <LoadingEffect/> : 
           <>
-            <h2 className="text-large font-semibold mb-3">Transactions</h2>
+            <h2 className="text-medium font-semibold mb-3">{title}</h2>
             <div className="css-scrollbar">
               {Object.keys(groupedTransactions).map((date) => (
                 <div key={date} className="mb-4 bg-white p-4 rounded-xl">

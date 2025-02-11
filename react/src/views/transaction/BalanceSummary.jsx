@@ -12,7 +12,7 @@ function BalanceSummary({ balance, income, expense }) {
                 <h2 className="text-small text-white">Total Balance</h2>
             </div>
 
-            <div className="flex items-center justify-between size-[100%]">
+            <div className="flex items-center justify-between w-full">
                 <div className="w-[40%] all-center py-4 pr-4 bg-light-cyan rounded-lg gap-4">
                     <img src={arrowUpIcon} alt="arrow up" className="size-[45px] bg-light-mint p-2 rounded-xl"/>
                     <div>

@@ -12,11 +12,15 @@ import GroupIcon from '@mui/icons-material/Group';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CustomSwitch from "../../components/CustomSwitch";
 import BasicDatePicker from "./BasicDatePicker";
+import Participant from "./Participant";
 
 function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
   // Local state to control whether it's a group expense (only applicable for Expense)
   const [isGroupExpense, setIsGroupExpense] = useState(false);
   const [amount, setAmount] = useState("");
+
+  const [groupExpenseShowPopUp, setGroupExpenseShowPopUp] = useState(false);
+
 
   // Handlers for Expense and Income buttons
   const handleSelectExpense = () => {
@@ -166,10 +170,12 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
                     <h3>As Group Expense</h3>
                     </div>
                     <div className="flex gap-2">
-                    <SettingsIcon fontSize="large" />
+                    <SettingsIcon fontSize="large" onClick={ ()=> setGroupExpenseShowPopUp(true)} />
                     <CustomSwitch onChange={handleSwitchToggle} checked={isGroupExpense} />
                     </div>
                 </div>
+
+                {groupExpenseShowPopUp && <Participant onClose={() => setGroupExpenseShowPopUp(false)}/>}
 
                 {/* Render additional input fields for group expense if enabled */}
                 {isGroupExpense && (

@@ -27,6 +27,9 @@
 .css-scrollbar{
     @apply overflow-y-auto overflow-x-hidden h-[100%] scrollbar-thin scrollbar-thumb-dark-green scrollbar-track-slate-50 pr-2;
 }
+.css-scrollbar-x{
+    @apply overflow-x-auto overflow-y-hidden w-[100%] scrollbar-thin scrollbar-thumb-dark-green scrollbar-track-slate-50 pb-2;
+}
   
 /* login form section */
 .user-form{

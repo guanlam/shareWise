@@ -41,9 +41,10 @@ Route::middleware('auth:sanctum')->group(function (){
 
     Route::apiResource('categories',CategoryController::class);
     Route::apiResource('payment-methods', PaymentMethodController::class);
-
-
-
+    
+    // Route::get('/test-cors', function () {
+    //     return response()->json(['message' => 'CORS is working!']);
+    // });
 
 
 });
@@ -51,3 +52,4 @@ Route::middleware('auth:sanctum')->group(function (){
 //User module
 Route::post('/signup',[AuthController::class,'signup']);
 Route::post('/login',[AuthController::class,'login']);
+
