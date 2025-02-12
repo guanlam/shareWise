@@ -9,7 +9,7 @@ class Participant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'email'];
+    protected $fillable = ['name', 'email','user_id'];
 
     // A participant is related to many transactions
     public function transactions()

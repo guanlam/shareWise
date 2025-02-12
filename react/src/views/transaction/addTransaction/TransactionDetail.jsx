@@ -13,6 +13,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CustomSwitch from "../../components/CustomSwitch";
 import BasicDatePicker from "./BasicDatePicker";
 import Participant from "./Participant";
+import axiosClient from "../../axios-client";
 
 function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
   // Local state to control whether it's a group expense (only applicable for Expense)
@@ -46,6 +47,20 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
   useEffect(() => {
     setTransaction((prev) => ({ ...prev, group_expense: isGroupExpense }));
   }, [isGroupExpense, setTransaction]);
+
+
+
+  const [allParticipants, setAllParticipants] = useState([]);
+  useEffect(() => {
+      fetchParticipants();
+    }, []);
+
+    const fetchParticipants = () => {
+      axiosClient
+        .get("/participants")
+        .then((res) => setAllParticipants(res.data))
+        .catch((err) => console.error(err));
+    };
 
   return (
     <div className="p-6 flex flex-col gap-4 size-full">
@@ -181,11 +196,14 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
                 {isGroupExpense && (
                     <div className="flex gap-2">
                     <select id="participant" name="participant" className="w-[70%] rounded-full p-2">
-                        <option value="" disabled selected hidden>Select a person</option>
-                        <option value="1">Ali</option>
-                        <option value="2">Tek Quan</option>
-                        <option value="3">Wei</option>
-                        <option value="4">Lam</option>
+                      <option value="" disabled hidden>Select a person</option>
+                      {allParticipants.map((participant, index) => {
+                        return <option key={index} value={participant.id}>{participant.name}</option>;
+                      })}
+
+
+                        
+                        
                     </select>
                     <input
                         type="text"
@@ -194,6 +212,8 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
                     />
                     </div>
                 )}
+
+                
                 </div>
                 <div className="w-full h-[1px] bg-[#adccbd]"></div>
             </>
