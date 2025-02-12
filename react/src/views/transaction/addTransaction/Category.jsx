@@ -13,18 +13,23 @@ function Category({ transaction }) {
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPopUp, setShowPopUp] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [colorValue, setColorValue] = useState("#1c312c");
+  const [selectedIcon, setSelectedIcon] = useState(null);
 
   useEffect(() => {
+    fetchCategories();
+  }, [transaction.type]);
+
+  const fetchCategories = () => {
+    setLoading(true);
     axiosClient.get(`/categories?type=${transaction.type}`)
       .then((res) => {
         setAllCategories(res.data);
-        setLoading(false);
       })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, [transaction.type]);
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  };
 
   const handleSettingsClick = () => {
     setShowPopUp(true);
@@ -32,27 +37,45 @@ function Category({ transaction }) {
 
   const closePopUp = () => {
     setShowPopUp(false);
+    setCategoryName("");
+    setSelectedIcon(null);
+    setColorValue("#1c312c");
   };
 
-  const [colorValue, setColorValue] = useState("#1c312c");
-  const handleChange = (newValue) => {
-    setColorValue(newValue);
-  };
-
-  const [selectedIcon, setSelectedIcon] = useState(null);
-
-  // Generate icon options using the imported iconList (for categories)
-  // The iconOptions are generated within the IconSelect component.
-  
   const handleIconChange = (selectedOption) => {
     setSelectedIcon(selectedOption);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!categoryName || !selectedIcon) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const newCategory = {
+      name: categoryName,
+      icon: selectedIcon.value,
+      color: colorValue,
+      type: transaction.type, // Include transaction type
+    };
+
+    axiosClient
+      .post("/categories", newCategory)
+      .then((res) => {
+        console.log(res);
+        fetchCategories(); // Refresh category list after adding
+        closePopUp();
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
     <>
       <div className="bg-light-cyan rounded-xl p-6 size-full flex flex-col justify-between">
         {loading ? (
-          <LoadingEffect/>
+          <LoadingEffect />
         ) : (
           <section className='space-y-4 size-full flex flex-col'>
             <div className="flex justify-between items-center">
@@ -83,13 +106,19 @@ function Category({ transaction }) {
         )}
         {showPopUp && (
           <PopUp title="Create Category" onClose={closePopUp}>
-            <form className="popUp-form flex flex-col gap-4 h-full justify-between">
+            <form className="popUp-form flex flex-col gap-4 h-full justify-between" onSubmit={handleSubmit}>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <label className="text-small text-[#798f86]">
                     Category Name
                   </label>
-                  <input type="text" placeholder="Enter Category Name" className="p-2" />
+                  <input 
+                    type="text" 
+                    placeholder="Enter Category Name" 
+                    className="p-2"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                  />
                 </div>
                 <div className="w-full h-[1px] bg-[#adccbd]"></div>
                 <div className="flex flex-col gap-2">
@@ -112,7 +141,7 @@ function Category({ transaction }) {
                   <MuiColorInput
                     format="hex"
                     value={colorValue}
-                    onChange={handleChange}
+                    onChange={setColorValue}
                     sx={{
                       "& .MuiInputBase-root": {
                         border: "none",

@@ -9,7 +9,7 @@ class Category extends Model
 {
     use HasFactory;
     //
-    protected $fillable = ['name', 'icon', 'type', 'user_id'];
+    protected $fillable = ['name', 'icon', 'type', 'color' ,'user_id'];
 
     // A category belongs to a user
     public function user()
