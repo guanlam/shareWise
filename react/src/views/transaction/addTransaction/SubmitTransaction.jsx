@@ -1,12 +1,17 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 import axiosClient from '../../axios-client';
 
 function SubmitTransaction({ transaction }) {
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     try {
       await axiosClient.post("/transactions", transaction);
       alert("Transaction added successfully!");
+      
+      navigate('/transaction');
+
     } catch (error) {
       console.error("Failed to add transaction:", error);
       alert("Error adding transaction");

@@ -13,7 +13,7 @@ function TransactionItem({ transaction }) {
   return (
     <div className="py-2 rounded-lg flex justify-between items-center hover:bg-gray-100">
       <div className="flex items-center gap-3">
-        <div className="w-[2.5rem] h-[2.5rem] flex items-center justify-center rounded-full" style={{backgroundColor: transaction.category.color}}>
+        <div className="w-[2.5rem] h-[2.5rem] flex items-center justify-center rounded-xl" style={{backgroundColor: transaction.category.color}}>
           {IconComponent ? (
             <IconComponent className="text-white" />
           ) : (
