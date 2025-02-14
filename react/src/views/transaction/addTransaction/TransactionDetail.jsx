@@ -14,14 +14,17 @@ import CustomSwitch from "../../components/CustomSwitch";
 import BasicDatePicker from "./BasicDatePicker";
 import Participant from "./Participant";
 import axiosClient from "../../axios-client";
+import iconMappings from "../../icon-mappings";
 
-function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
+function TransactionDetail({ transaction, setTransaction, setActivePanel, selectedCategory, selectedPaymentMethod }) {
   // Local state to control whether it's a group expense (only applicable for Expense)
   const [isGroupExpense, setIsGroupExpense] = useState(false);
   const [amount, setAmount] = useState("");
 
   const [groupExpenseShowPopUp, setGroupExpenseShowPopUp] = useState(false);
 
+
+ 
 
   // Handlers for Expense and Income buttons
   const handleSelectExpense = () => {
@@ -40,8 +43,15 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
 
   // When the group expense switch is toggled, update local and parent state
   const handleSwitchToggle = (event) => {
-    setIsGroupExpense(event.target.checked);
+    const isChecked = event.target.checked;
+    setIsGroupExpense(isChecked);
+    setTransaction((prev) => ({
+      ...prev,
+      group_expense: isChecked,
+      participants: isChecked ? [] : prev.participants, // Reset participants if disabled
+    }));
   };
+  
 
   // Sync group_expense state with the transaction object
   useEffect(() => {
@@ -51,6 +61,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
 
 
   const [allParticipants, setAllParticipants] = useState([]);
+  const [selectedParticipants, setSelectedParticipants] = useState([]); // State to store selected participants and amounts
   useEffect(() => {
       fetchParticipants();
     }, []);
@@ -61,6 +72,27 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
         .then((res) => setAllParticipants(res.data))
         .catch((err) => console.error(err));
     };
+
+    const handleAddParticipant = () => {
+      setSelectedParticipants([...selectedParticipants, { participantId: "", amount: "" }]);
+      setTransaction((prev) => ({
+        ...prev,
+        participants: [...prev.participants, { participantId: "", amount: "" }],
+      }));
+    };
+    
+  
+    const handleParticipantChange = (index, field, value) => {
+      const updatedParticipants = [...selectedParticipants];
+      updatedParticipants[index][field] = value;
+      setSelectedParticipants(updatedParticipants);
+      setTransaction((prev) => ({
+        ...prev,
+        participants: updatedParticipants,
+      }));
+    };
+    
+  
 
   return (
     <div className="p-6 flex flex-col gap-4 size-full">
@@ -104,21 +136,31 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
         <div className="flex flex-col gap-4">
           {/* Category Section */}
           <div className="flex flex-col gap-2">
-            <div className="text-small text-[#798f86]"><h5>Category</h5></div>
+            <div className="text-small text-[#798f86]">
+              <h5>Category</h5>
+            </div>
             <div className="flex justify-between items-center" onClick={() => setActivePanel("category")}>
               <div className="flex items-center gap-4">
-                <div className="w-[2.5rem] h-[2.5rem] bg-yellow-400 flex items-center justify-center rounded-xl">
+                {/* Category Icon with Background Color */}
+                <div
+                  className="w-[2.5rem] h-[2.5rem] flex items-center justify-center rounded-xl"
+                  style={{ backgroundColor: selectedCategory?.color || "#1c312c" }} // ✅ Fixed fallback
+                >
                   <span className="text-white">
-                    <FoodnDrinkIcon />
+                    {selectedCategory?.icon ? React.createElement(iconMappings[selectedCategory.icon]) : "?"}
                   </span>
                 </div>
-                <h3>Food & Drink</h3>
+
+                {/* Category Name */}
+                <h3>{selectedCategory?.name || "Select Category"}</h3>
               </div>
+
               <div>
                 <ChevronRightIcon fontSize="large" />
               </div>
             </div>
           </div>
+
           <div className="w-full h-[1px] bg-[#adccbd]"></div>
 
           {/* Payment Method Section */}
@@ -126,10 +168,12 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
             <div className="text-small text-[#798f86]"><h5>Payment Method</h5></div>
             <div className="flex justify-between items-center" onClick={() => setActivePanel("paymentMethod")}>
               <div className="flex items-center gap-4">
-                <div className="w-[2.5rem] h-[2.5rem] bg-slate-500 flex items-center justify-center rounded-xl">
-                  <span className="text-white"><DebitCardIcon /></span>
+                <div className="w-[2.5rem] h-[2.5rem] bg-slate-500 flex items-center justify-center rounded-xl"
+                style={{ backgroundColor: selectedPaymentMethod?.color || "#1c312c" }} 
+                >
+                  <span className="text-white">{selectedPaymentMethod?.icon ? React.createElement(iconMappings[selectedPaymentMethod.icon]) : "?"}</span>
                 </div>
-                <h3>Debit Card</h3>
+                <h3>{selectedPaymentMethod?.name || "Select Payment Method"}</h3>
               </div>
               <div>
                 <ChevronRightIcon fontSize="large" />
@@ -146,7 +190,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
                 <div className="w-[2.5rem] h-[2.5rem] bg-cyan-500 flex items-center justify-center rounded-xl">
                   <span className="text-white"><CalendarMonthIcon /></span>
                 </div>
-                <BasicDatePicker />
+                <BasicDatePicker date={transaction.date} setTransaction={setTransaction} />
               </div>
             </div>
           </div>
@@ -160,13 +204,35 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
                 <div className="w-[2.5rem] h-[2.5rem] bg-teal-500 flex items-center justify-center rounded-xl">
                   <span className="text-white"><RecurrenceIcon /></span>
                 </div>
-                <select id="recurrence" name="recurrence">
-                  <option value="none">None</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
+                <select 
+                  id="recurrence" 
+                  name="recurrence"
+                  value={transaction.recurrence_frequency}
+                  onChange={(e) => {
+                    const newRecurrenceFrequency = e.target.value;
+                    setTransaction((prev) => {
+                      const updatedTransaction = {
+                        ...prev,
+                        recurrence: newRecurrenceFrequency !== "None",
+                        recurrence_frequency: newRecurrenceFrequency,
+                      };
+
+                      // If the value is "None", remove recurrence_frequency from the state
+                      if (newRecurrenceFrequency === "None") {
+                        delete updatedTransaction.recurrence_frequency;
+                      }
+
+                      return updatedTransaction;
+                    });
+                  }}
+                >
+                  <option value="None">None</option>
+                  <option value="Daily">Daily</option>
+                  <option value="Weekly">Weekly</option>
+                  <option value="Monthly">Monthly</option>
+                  <option value="Yearly">Yearly</option>
                 </select>
+
               </div>
             </div>
           </div>
@@ -194,23 +260,39 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
 
                 {/* Render additional input fields for group expense if enabled */}
                 {isGroupExpense && (
-                    <div className="flex gap-2">
-                    <select id="participant" name="participant" className="w-[70%] rounded-full p-2">
-                      <option value="" disabled hidden>Select a person</option>
-                      {allParticipants.map((participant, index) => {
-                        return <option key={index} value={participant.id}>{participant.name}</option>;
-                      })}
+                  <>
+                    {selectedParticipants.map((participant, index) => (
+                      <div key={index} className="flex gap-2">
+                        <select
+                          id="participant"
+                          name="participant"
+                          className="w-[70%] rounded-full p-2"
+                          value={participant.participantId}
+                          onChange={(e) => handleParticipantChange(index, 'participantId', e.target.value)}
+                        >
+                          <option value="" disabled hidden>Select a person</option>
+                          {allParticipants.map((p, idx) => (
+                            <option key={idx} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          placeholder="Enter Amount"
+                          className="border-b-2 border-[#adccbd]"
+                          value={participant.amount}
+                          onChange={(e) => handleParticipantChange(index, 'amount', e.target.value)}
+                        />
+                      </div>
+                    ))}
 
-
-                        
-                        
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="Enter Amount"
-                        className="border-b-2 border-[#adccbd]"
-                    />
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddParticipant}
+                      className="mt-2 text-blue-500"
+                    >
+                      Add More
+                    </button>
+                  </>
                 )}
 
                 
@@ -224,7 +306,12 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel }) {
           <div className="flex flex-col gap-2">
             <div className="text-small text-[#798f86]"><h5>Note</h5></div>
             <div className="css-input">
-              <input type="text" placeholder="Click to fill in the remarks" />
+              <input 
+                type="text" 
+                placeholder="Click to fill in the remarks"
+                value={transaction.description}
+                onChange={(e) => setTransaction((prev) => ({ ...prev, description: e.target.value }))}
+              />
             </div>
           </div>
           <div className="w-full h-[1px] bg-[#adccbd]"></div>

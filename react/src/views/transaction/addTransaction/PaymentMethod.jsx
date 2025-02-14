@@ -9,7 +9,7 @@ import { MuiColorInput } from "mui-color-input";
 import IconSelect from "./icon/IconSelect";
 import iconList from "../../icon-all-py"; // Payment method icon mapping
 
-function PaymentMethod() {
+function PaymentMethod({setTransaction, selectedPaymentMethod , setSelectedPaymentMethod}) {
   const [allPaymentMethods, setAllPaymentMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPopUp, setShowPopUp] = useState(false);
@@ -91,16 +91,29 @@ function PaymentMethod() {
               {allPaymentMethods.map((pm) => (
                 <div
                   key={pm.id}
-                  className="border border-gray-300 all-center gap-4 px-4 py-2 rounded-xl text-center"
+                  className={`border all-center gap-4 px-4 py-2 rounded-xl text-center cursor-pointer 
+                  ${selectedPaymentMethod?.id === pm.id ? "border-dark-green" : "border-gray-300"}`}
+                  onClick={() => {setSelectedPaymentMethod(pm) 
+
+                    setTransaction((prev => (
+                      {
+                        ...prev, 
+                        payment_method_id: pm.id
+                      }
+                    )))
+                  
+                    
+                  }}
                 >
                   <div
                     className="rounded-xl p-2 text-white"
                     style={{ backgroundColor: pm.color }}
                   >
-                    {(() => {
+                    {/* {(() => {
                       const IconComponent = iconMappings[pm.icon];
                       return <IconComponent />;
-                    })()}
+                    })()} */}
+                    {React.createElement(iconMappings[pm.icon])}
                   </div>
                   <p className="text-small flex-1">{pm.name}</p>
                 </div>

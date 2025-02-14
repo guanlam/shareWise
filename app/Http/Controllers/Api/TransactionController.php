@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Recurrence;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,14 +30,50 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request)
     {
         $data = $request->validated();
-        dd(Auth::user()); // Debugging to see if the user is logged in
 
+        // Create transaction (exclude recurrence_frequency)
         $transaction = Transaction::create([
-            ...$request->validated(),
+            'date' => $data['date'],
+            'amount' => $data['amount'],
+            'type' => $data['type'],
+            'description' => $data['description'] ?? null,
+            'group_expense' => $data['group_expense'] ?? false,
+            'recurrence' => $data['recurrence'] ?? false,
+            'category_id' => $data['category_id'],
+            'payment_method_id' => $data['payment_method_id'],
             'user_id' => Auth::id(),
         ]);
+
+    
+        // If recurrence is true, create a recurrence record
+        if ($data['recurrence']) {
+            Recurrence::create([
+                'transaction_id' => $transaction->id,
+                'frequency' => $data['recurrence_frequency'], // Store in recurrences table
+                'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
+            ]);
+    }
+
+    return response()->json(['message' => 'Transaction created successfully!', 'transaction' => $transaction], 201);
         
     }
+
+    private function calculateNextDate($frequency, $currentDate)
+    {
+        switch ($frequency) {
+            case 'Daily':
+                return Carbon::parse($currentDate)->addDay();
+            case 'Weekly':
+                return Carbon::parse($currentDate)->addWeek();
+            case 'Monthly':
+                return Carbon::parse($currentDate)->addMonth();
+            case 'Yearly':
+                return Carbon::parse($currentDate)->addYear();
+            default:
+                return null; // Should never happen if validation is correct
+        }
+    }
+
 
     /**
      * Display the specified resource.

@@ -9,7 +9,7 @@ import iconMappings from "../../icon-mappings"; // For rendering icons in the li
 import IconSelect from "./icon/IconSelect"; // Reusable IconSelect
 import iconList from "../../icon-all-category"; // Icon mapping for categories
 
-function Category({ transaction }) {
+function Category({ transaction , setTransaction ,selectedCategory ,setSelectedCategory  }) {
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPopUp, setShowPopUp] = useState(false);
@@ -85,22 +85,31 @@ function Category({ transaction }) {
               </div>
             </div>
             <div className='grid grid-cols-2 gap-8 max-h-[45vh] overflow-auto scrollbar-thin scrollbar-thumb-dark-green scrollbar-track-slate-50 pr-2'>
-              {allCategories.map((category) => (
+            {allCategories.map((category) => (
+              <div
+                key={category.id}
+                className={`border all-center gap-4 px-4 py-2 rounded-xl text-center cursor-pointer 
+                  ${selectedCategory?.id === category.id ? "border-dark-green" : "border-gray-300"}`}
+                onClick={() => {setSelectedCategory(category)
+                  setTransaction((prev => (
+                    {
+                      ...prev, 
+                      category_id: category.id
+                    }
+                  )))
+                }}
+              >
                 <div
-                  key={category.id}
-                  className='border border-gray-300 all-center gap-4 px-4 py-2 rounded-xl text-center '
+                  className="rounded-xl p-2 text-white"
+                  style={{ backgroundColor: category.color }}
                 >
-                  <div className='bg-amber-300 rounded-xl p-2 text-white' style={{ backgroundColor: category.color }}>
-                    {(() => {
-                      const IconComponent = iconMappings[category.icon];
-                      return <IconComponent />;
-                    })()}
-                  </div>
-                  <p className='text-small flex-1'>
-                    {category.name}
-                  </p>
+                  {React.createElement(iconMappings[category.icon])}
                 </div>
-              ))}
+                <p className="text-small flex-1">{category.name}</p>
+              </div>
+            ))}
+
+
             </div>
           </section>
         )}

@@ -27,6 +27,8 @@ class StoreTransactionRequest extends FormRequest
             'type' => 'required|in:Income,Expense',
             'description' => 'nullable|string',
             'group_expense' => 'boolean',
+            'recurrence' => 'boolean',
+            'recurrence_frequency' => 'required_if:recurrence,true|in:Daily,Weekly,Monthly,Yearly',
             'category_id' => 'required|exists:categories,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             

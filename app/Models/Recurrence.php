@@ -9,7 +9,7 @@ class Recurrence extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['frequency', 'last_generated_date', 'transaction_id'];
+    protected $fillable = ['frequency', 'next_generated_date', 'transaction_id'];
 
     public function transaction()
     {
