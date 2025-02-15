@@ -16,10 +16,13 @@ import Participant from "./Participant";
 import axiosClient from "../../axios-client";
 import iconMappings from "../../icon-mappings";
 
+
+import ClearIcon from '@mui/icons-material/Clear';
+
 function TransactionDetail({ transaction, setTransaction, setActivePanel, selectedCategory, selectedPaymentMethod }) {
   // Local state to control whether it's a group expense (only applicable for Expense)
   const [isGroupExpense, setIsGroupExpense] = useState(false);
-  const [amount, setAmount] = useState("");
+ 
 
   const [groupExpenseShowPopUp, setGroupExpenseShowPopUp] = useState(false);
 
@@ -35,22 +38,54 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
   };
 
   const handleSelectIncome = () => {
-    // Update the transaction type to "Income"
-    setTransaction((prev) => ({ ...prev, type: "Income", group_expense: false }));
-    // For income, group expense is not applicable
+    setTransaction((prev) => {
+      // Create a new transaction object
+      const updatedTransaction = { 
+        ...prev, 
+        type: "Income", 
+        group_expense: false 
+      };
+  
+      // Remove participants if they exist
+      if (updatedTransaction.participants) {
+        delete updatedTransaction.participants;
+      }
+  
+      return updatedTransaction;
+    });
+  
+    // Disable group expense since it's not applicable for Income
     setIsGroupExpense(false);
   };
-
+  
   // When the group expense switch is toggled, update local and parent state
   const handleSwitchToggle = (event) => {
     const isChecked = event.target.checked;
+  
+    // Update the group_expense state
     setIsGroupExpense(isChecked);
-    setTransaction((prev) => ({
-      ...prev,
-      group_expense: isChecked,
-      participants: isChecked ? [] : prev.participants, // Reset participants if disabled
-    }));
+  
+    // Update the transaction state
+    setTransaction((prev) => {
+      const updatedTransaction = {
+        ...prev,
+        group_expense: isChecked,
+      };
+  
+      // If group_expense is false, remove participants from the transaction
+      if (!isChecked) {
+        delete updatedTransaction.participants;
+      } else {
+        updatedTransaction.participants = []; // Reset participants if group_expense is true
+      }
+  
+      return updatedTransaction;
+    });
+  
+    // Reset selectedParticipants based on the switch state
+    setSelectedParticipants(isChecked ? [{ participant_id: "", amount: "" }] : []);
   };
+  
   
 
   // Sync group_expense state with the transaction object
@@ -74,24 +109,95 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
     };
 
     const handleAddParticipant = () => {
-      setSelectedParticipants([...selectedParticipants, { participantId: "", amount: "" }]);
-      setTransaction((prev) => ({
-        ...prev,
-        participants: [...prev.participants, { participantId: "", amount: "" }],
-      }));
+      setSelectedParticipants((prev) => {
+        const newParticipant = { participant_id: "", amount: "" };
+        const updatedParticipants = [...prev, newParticipant];
+    
+        // Recalculate amounts for all participants
+        updateParticipantAmounts(updatedParticipants);
+        return updatedParticipants;
+      });
     };
+    
     
   
     const handleParticipantChange = (index, field, value) => {
-      const updatedParticipants = [...selectedParticipants];
-      updatedParticipants[index][field] = value;
-      setSelectedParticipants(updatedParticipants);
-      setTransaction((prev) => ({
-        ...prev,
-        participants: updatedParticipants,
-      }));
-    };
+      setSelectedParticipants((prevParticipants) => {
+        const updatedParticipants = [...prevParticipants];
+        updatedParticipants[index][field] = value;
     
+        if (field === "participant_id") {
+          // Ensure no duplicate participants
+          const isDuplicate = updatedParticipants.some(
+            (p, idx) => p.participant_id === value && idx !== index
+          );
+          if (isDuplicate) return prevParticipants;
+        }
+    
+        if (field === "amount") {
+          // Ensure the total assigned amount does not exceed the total transaction amount
+          const totalAssigned = updatedParticipants.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+          if (totalAssigned > transaction.amount) {
+            return prevParticipants; // Prevent exceeding the total
+          }
+        }
+    
+        setTransaction((prev) => ({
+          ...prev,
+          participants: updatedParticipants,
+        }));
+    
+        return updatedParticipants;
+      });
+    };
+
+    const updateParticipantAmounts = (participants) => {
+      setSelectedParticipants((prev) => {
+        if (participants.length === 0) return prev;
+    
+        // Calculate the new amount per participant
+        const totalAmount = transaction.amount || 0;
+        const splitAmount = totalAmount / (participants.length + 1); // +1 for the user
+    
+        const updatedParticipants = participants.map((p) => ({
+          ...p,
+          amount: parseFloat(splitAmount.toFixed(2)),
+        }));
+    
+        setTransaction((prev) => ({
+          ...prev,
+          participants: updatedParticipants,
+        }));
+    
+        return updatedParticipants;
+      });
+    };
+
+    useEffect(() => {
+      if (isGroupExpense) {
+        updateParticipantAmounts(selectedParticipants);
+      }
+    }, [transaction.amount,selectedParticipants.length]);  // Runs when the total transaction amount changes
+    
+    
+    
+    
+    
+    // Delete handler function
+    const handleDelete = (index) => {
+      setSelectedParticipants((prevParticipants) => {
+        // Remove participant at the given index
+        const updatedParticipants = prevParticipants.filter((_, idx) => idx !== index);
+
+        // Update the transaction participants to reflect the deletion
+        setTransaction((prevTransaction) => ({
+          ...prevTransaction,
+          participants: updatedParticipants, // Update participants in transaction state
+        }));
+
+        return updatedParticipants;
+      });
+    };
   
 
   return (
@@ -124,12 +230,34 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
         <div className="css-input" onClick={() => setActivePanel("calculator")}>
           <label className="text-medium font-semibold">RM</label>
           <input
-            type="text"
+            type="number"  // This restricts the input to only numeric values
             placeholder="0"
             className="text-big"
-            value={transaction.amount || amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={transaction.amount}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              // Handle empty string scenario
+              if (value === "") {
+                setTransaction((prev) => ({
+                  ...prev,
+                  amount: "",
+                }));
+              } else {
+                const numericValue = parseFloat(value);  // Convert the string to a number
+
+                if (!isNaN(numericValue) && numericValue >= 0) {  // Check if the value is a valid number and non-negative
+                  setTransaction((prev) => ({
+                    ...prev,
+                    amount: numericValue,
+                  }));
+                }
+              }
+            }}
           />
+
+
+
         </div>
         <div className="w-full h-[2px] bg-black mb-4"></div>
 
@@ -242,58 +370,86 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
           {transaction.type === "Expense" && (
             <>
                 <div className="flex flex-col gap-2">
-                <div className="text-small text-[#798f86]"><h5>Group Expense</h5></div>
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                    <div className="w-[2.5rem] h-[2.5rem] bg-slate-500 flex items-center justify-center rounded-xl">
-                        <span className="text-white"><GroupIcon /></span>
-                    </div>
-                    <h3>As Group Expense</h3>
-                    </div>
-                    <div className="flex gap-2">
-                    <SettingsIcon fontSize="large" onClick={ ()=> setGroupExpenseShowPopUp(true)} />
-                    <CustomSwitch onChange={handleSwitchToggle} checked={isGroupExpense} />
-                    </div>
-                </div>
-
-                {groupExpenseShowPopUp && <Participant onClose={() => setGroupExpenseShowPopUp(false)}/>}
-
-                {/* Render additional input fields for group expense if enabled */}
-                {isGroupExpense && (
-                  <>
-                    {selectedParticipants.map((participant, index) => (
-                      <div key={index} className="flex gap-2">
-                        <select
-                          id="participant"
-                          name="participant"
-                          className="w-[70%] rounded-full p-2"
-                          value={participant.participantId}
-                          onChange={(e) => handleParticipantChange(index, 'participantId', e.target.value)}
-                        >
-                          <option value="" disabled hidden>Select a person</option>
-                          {allParticipants.map((p, idx) => (
-                            <option key={idx} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          placeholder="Enter Amount"
-                          className="border-b-2 border-[#adccbd]"
-                          value={participant.amount}
-                          onChange={(e) => handleParticipantChange(index, 'amount', e.target.value)}
-                        />
+                  <div className="text-small text-[#798f86]"><h5>Group Expense</h5></div>
+                  <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-4">
+                      <div className="w-[2.5rem] h-[2.5rem] bg-slate-500 flex items-center justify-center rounded-xl">
+                          <span className="text-white"><GroupIcon /></span>
                       </div>
-                    ))}
+                      <h3>As Group Expense</h3>
+                      </div>
+                      <div className="flex gap-2">
+                      <SettingsIcon fontSize="large" onClick={ ()=> setGroupExpenseShowPopUp(true)} />
+                      <CustomSwitch onChange={handleSwitchToggle} checked={isGroupExpense} />
+                      </div>
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={handleAddParticipant}
-                      className="mt-2 text-blue-500"
-                    >
-                      Add More
-                    </button>
-                  </>
-                )}
+                  {groupExpenseShowPopUp && <Participant onClose={() => setGroupExpenseShowPopUp(false)}/>}
+
+                  {/* // Show participant input if Group Expense is ON */}
+                  {isGroupExpense && selectedParticipants.length > 0 && (
+                    <>
+                      {selectedParticipants.map((participant, index) => (
+                        <div key={index} className="flex gap-2">
+                          <select
+                            id="participant"
+                            name="participant"
+                            className="w-[70%] rounded-full p-2"
+                            value={participant.participant_id}
+                            onChange={(e) => handleParticipantChange(index, 'participant_id', Number(e.target.value))}
+                          >
+                            <option value="" disabled hidden>Select a person</option>
+                            {allParticipants
+                              .map((p, idx) => (
+                                <option key={idx} value={p.id} 
+                                  disabled={selectedParticipants.some((selected) => Number(selected.participant_id) === p.id)}>
+                                    {p.name}
+                                </option>
+                              ))}
+                          </select>
+                          <input
+                            type="number"
+                            placeholder="Enter Amount"
+                            className="border-b-2 border-[#adccbd]"
+                            value={participant.amount}
+                            onChange={(e) => {
+                              const inputValue = e.target.value; // Get the value from input
+
+                              // Handle empty input (set it to an empty string)
+                              if (inputValue === "") {
+                                handleParticipantChange(index, "amount", "");
+                                return;
+                              }
+
+                              // Convert input to a number
+                              const numericValue = parseFloat(inputValue);
+
+                              // Only update if it's a valid number and non-negative
+                              if (!isNaN(numericValue) && numericValue >= 0) {
+                                handleParticipantChange(index, "amount", numericValue);
+                              }
+                            }}
+                          />
+
+                            <button type="button" onClick={() => handleDelete(index)}>
+                              <ClearIcon /> {/* This button will now delete the participant */}
+                            </button>
+                          </div>
+                        ))}
+
+                      {/* Conditionally render the "Add More" button */}
+                      {selectedParticipants.length < allParticipants.length && (
+                        <button
+                          type="button"
+                          onClick={handleAddParticipant}
+                          className="mt-2 text-blue-500"
+                        >
+                          Add More
+                        </button>
+                      )}
+                    </>
+                  )}
+
 
                 
                 </div>
