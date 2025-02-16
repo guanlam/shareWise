@@ -83,7 +83,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
     });
   
     // Reset selectedParticipants based on the switch state
-    setSelectedParticipants(isChecked ? [{ participant_id: "", amount: "" }] : []);
+    setSelectedParticipants(isChecked ? [{ participant_id: "", amount_owed: "" }] : []);
   };
   
   
@@ -110,7 +110,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
 
     const handleAddParticipant = () => {
       setSelectedParticipants((prev) => {
-        const newParticipant = { participant_id: "", amount: "" };
+        const newParticipant = { participant_id: "", amount_owed: "" };
         const updatedParticipants = [...prev, newParticipant];
     
         // Recalculate amounts for all participants
@@ -134,10 +134,10 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
           if (isDuplicate) return prevParticipants;
         }
     
-        if (field === "amount") {
+        if (field === "amount_owed") {
           // Ensure the total assigned amount does not exceed the total transaction amount
-          const totalAssigned = updatedParticipants.reduce((sum, p) => sum + Number(p.amount || 0), 0);
-          if (totalAssigned > transaction.amount) {
+          const totalAssigned = updatedParticipants.reduce((sum, p) => sum + Number(p.amount_owed || 0), 0);
+          if (totalAssigned > transaction.amount_owed) {
             return prevParticipants; // Prevent exceeding the total
           }
         }
@@ -161,7 +161,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
     
         const updatedParticipants = participants.map((p) => ({
           ...p,
-          amount: parseFloat(splitAmount.toFixed(2)),
+          amount_owed: parseFloat(splitAmount.toFixed(2)),
         }));
     
         setTransaction((prev) => ({
@@ -411,13 +411,13 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
                             type="number"
                             placeholder="Enter Amount"
                             className="border-b-2 border-[#adccbd]"
-                            value={participant.amount}
+                            value={participant.amount_owed}
                             onChange={(e) => {
                               const inputValue = e.target.value; // Get the value from input
 
                               // Handle empty input (set it to an empty string)
                               if (inputValue === "") {
-                                handleParticipantChange(index, "amount", "");
+                                handleParticipantChange(index, "amount_owed", "");
                                 return;
                               }
 
@@ -426,7 +426,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
 
                               // Only update if it's a valid number and non-negative
                               if (!isNaN(numericValue) && numericValue >= 0) {
-                                handleParticipantChange(index, "amount", numericValue);
+                                handleParticipantChange(index, "amount_owed", numericValue);
                               }
                             }}
                           />

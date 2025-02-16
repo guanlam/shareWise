@@ -9,7 +9,7 @@ class TransactionParticipant extends Pivot
 {
     use HasFactory;
 
-    // protected $table = 'participant_transactions';
+    
 
     protected $fillable = ['transaction_id', 'participant_id', 'amount_owed', 'payment_status'];
 

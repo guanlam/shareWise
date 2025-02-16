@@ -18,5 +18,10 @@ class Participant extends Model
                     ->withPivot('amount_owed', 'payment_status')
                     ->withTimestamps();
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
 

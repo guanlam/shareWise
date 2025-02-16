@@ -37,8 +37,8 @@ const ExpenseByCategory = ({ transactions }) => {
   return (
     <div className="size-full all-center flex-col p-4 gap-4">
       <div className="flex justify-between items-center w-full">
-        <h2>Expense By Category</h2>
-        <select id="frequency" name="frequency" className="bg-transparent">
+        <h2 className="text-medium font-semibold">Expense By Category</h2>
+        <select id="frequency" name="frequency" className="bg-transparent text-small font-semibold">
           <option value="1">Monthly</option>
           <option value="2">Daily</option>
           <option value="3">Weekly</option>

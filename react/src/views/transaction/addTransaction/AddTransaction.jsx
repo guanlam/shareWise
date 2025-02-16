@@ -18,7 +18,7 @@ function AddTransaction() {
         group_expense: false,
         recurrence: false,
         // recurrence_frequency: "None", //if recurrence is true it will be set to "Daily", "Weekly", "Monthly", "Yearly"
-        description: "",
+        description: null,
         
 
         

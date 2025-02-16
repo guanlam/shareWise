@@ -7,9 +7,11 @@ use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Recurrence;
 use App\Models\Transaction;
+use App\Models\TransactionParticipant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -27,10 +29,15 @@ class TransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTransactionRequest $request)
-    {
-        $data = $request->validated();
+    
 
+public function store(StoreTransactionRequest $request)
+{
+    DB::beginTransaction(); // Start transaction to prevent partial inserts
+
+    try {
+        $data = $request->validated();
+        
         // Create transaction (exclude recurrence_frequency)
         $transaction = Transaction::create([
             'date' => $data['date'],
@@ -41,22 +48,38 @@ class TransactionController extends Controller
             'recurrence' => $data['recurrence'] ?? false,
             'category_id' => $data['category_id'],
             'payment_method_id' => $data['payment_method_id'],
-            'user_id' => Auth::id(),
+            'user_id' => auth()->id(),
         ]);
 
-    
-        // If recurrence is true, create a recurrence record
+        // ✅ Save Participants If Group Expense is True
+        if ($data['group_expense']) {
+            foreach ($data['participants'] as $participant) {
+                $transaction->participants()->attach($participant['participant_id'], [
+                    'amount_owed' => $participant['amount_owed'],
+                    'payment_status' => 'Pending'
+                ]);
+            }
+        }
+
+        // ✅ If recurrence is true, create a recurrence record
         if ($data['recurrence']) {
             Recurrence::create([
                 'transaction_id' => $transaction->id,
                 'frequency' => $data['recurrence_frequency'], // Store in recurrences table
                 'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
             ]);
-    }
+        }
 
-    return response()->json(['message' => 'Transaction created successfully!', 'transaction' => $transaction], 201);
-        
+        DB::commit(); // Commit the transaction
+
+        return response()->json(['message' => 'Transaction created successfully', 'transaction' => $transaction], 201);
+    } catch (\Exception $e) {
+        DB::rollBack(); // Rollback if anything fails
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
+
+
 
     private function calculateNextDate($frequency, $currentDate)
     {

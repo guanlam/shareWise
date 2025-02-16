@@ -93,7 +93,7 @@ const PieChart = ({ data }) => {
       </div>
 
       {/* Category Info Section (You can remove this if you don't want this section below the chart) */}
-      <section className="mt-4 flex gap-4 size-full css-scrollbar-x">
+      <section className="mt-4 flex gap-4 size-full justify-center css-scrollbar-x">
         {data.map((category, index) => {
           const percentage = ((category.value / data.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(2);
 

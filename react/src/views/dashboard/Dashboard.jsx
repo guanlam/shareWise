@@ -13,8 +13,8 @@ function Dashboard() {
 
   // State to hold the selected month (0 = January, 11 = December)
   const currentDate = new Date();
-  const currentMonth = 1;
-  const currentYear = 2024;
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
 
 
   // Fetch transactions on component mount

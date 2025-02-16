@@ -31,6 +31,13 @@ class StoreTransactionRequest extends FormRequest
             'recurrence_frequency' => 'required_if:recurrence,true|in:Daily,Weekly,Monthly,Yearly',
             'category_id' => 'required|exists:categories,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
+
+
+            // Add validation for participants
+            'participants' => 'nullable|array',
+            'participants.*.participant_id' => 'required_with:participants|exists:participants,id',
+            'participants.*.amount_owed' => 'required_with:participants|numeric|min:0',
+            
             
         ];
     }
