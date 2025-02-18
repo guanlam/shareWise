@@ -20,64 +20,70 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
-        $transactions = Transaction::where('user_id', Auth::id())->with(['category', 'paymentMethod'])->get();
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->with(['category', 'paymentMethod', 'recurrence', 'participants' => function ($query) {
+                $query->withPivot('amount_owed', 'payment_status'); // Include pivot table data
+            }])
+            ->get();
+
         return response()->json($transactions);
 
+
+        return response()->json($transactions);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    
 
-public function store(StoreTransactionRequest $request)
-{
-    DB::beginTransaction(); // Start transaction to prevent partial inserts
 
-    try {
-        $data = $request->validated();
-        
-        // Create transaction (exclude recurrence_frequency)
-        $transaction = Transaction::create([
-            'date' => $data['date'],
-            'amount' => $data['amount'],
-            'type' => $data['type'],
-            'description' => $data['description'] ?? null,
-            'group_expense' => $data['group_expense'] ?? false,
-            'recurrence' => $data['recurrence'] ?? false,
-            'category_id' => $data['category_id'],
-            'payment_method_id' => $data['payment_method_id'],
-            'user_id' => auth()->id(),
-        ]);
+    public function store(StoreTransactionRequest $request)
+    {
+        DB::beginTransaction(); // Start transaction to prevent partial inserts
 
-        // ✅ Save Participants If Group Expense is True
-        if ($data['group_expense']) {
-            foreach ($data['participants'] as $participant) {
-                $transaction->participants()->attach($participant['participant_id'], [
-                    'amount_owed' => $participant['amount_owed'],
-                    'payment_status' => 'Pending'
+        try {
+            $data = $request->validated();
+
+            // Create transaction (exclude recurrence_frequency)
+            $transaction = Transaction::create([
+                'date' => $data['date'],
+                'amount' => $data['amount'],
+                'type' => $data['type'],
+                'description' => $data['description'] ?? null,
+                'group_expense' => $data['group_expense'] ?? false,
+                'recurrence' => $data['recurrence'] ?? false,
+                'category_id' => $data['category_id'],
+                'payment_method_id' => $data['payment_method_id'],
+                'user_id' => auth()->id(),
+            ]);
+
+            // ✅ Save Participants If Group Expense is True
+            if ($data['group_expense']) {
+                foreach ($data['participants'] as $participant) {
+                    $transaction->participants()->attach($participant['participant_id'], [
+                        'amount_owed' => $participant['amount_owed'],
+                        'payment_status' => 'Pending'
+                    ]);
+                }
+            }
+
+            // ✅ If recurrence is true, create a recurrence record
+            if ($data['recurrence']) {
+                Recurrence::create([
+                    'transaction_id' => $transaction->id,
+                    'frequency' => $data['recurrence_frequency'], // Store in recurrences table
+                    'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
                 ]);
             }
+
+            DB::commit(); // Commit the transaction
+
+            return response()->json(['message' => 'Transaction created successfully', 'transaction' => $transaction], 201);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback if anything fails
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // ✅ If recurrence is true, create a recurrence record
-        if ($data['recurrence']) {
-            Recurrence::create([
-                'transaction_id' => $transaction->id,
-                'frequency' => $data['recurrence_frequency'], // Store in recurrences table
-                'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
-            ]);
-        }
-
-        DB::commit(); // Commit the transaction
-
-        return response()->json(['message' => 'Transaction created successfully', 'transaction' => $transaction], 201);
-    } catch (\Exception $e) {
-        DB::rollBack(); // Rollback if anything fails
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 
 
 

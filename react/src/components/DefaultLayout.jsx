@@ -62,10 +62,11 @@ function DefaultLayout() {
                 </li>
               </Link>
 
-              <Link to='/addTransaction'>
-                <li className='css-nav-li-plus'>+</li>
+              {/* Plus button always navigates in "add" mode */}
+              <Link to="/addTransaction" state={{ action: "add" }}>
+                <li className="css-nav-li-plus">+</li>
               </Link>
-
+              
               <Link to='/budget'>
                 <li className='css-nav-li'>
                   <img src={budgetIcon} alt="budget icon" />
