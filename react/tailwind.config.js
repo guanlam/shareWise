@@ -12,6 +12,7 @@ export default {
         'light-gray': '#adccbd'
       },
       fontSize: {
+        supersmall: 'clamp(0.5rem, 2vw, 0.8rem)',  
         small: 'clamp(0.7rem, 2vw, 1rem)',  
         medium: 'clamp(.9rem, 3vw, 1.2rem)',
         large: 'clamp(1.1rem,4vw,1.4rem)',

@@ -14,6 +14,9 @@ import BasicDatePicker from "../addTransaction/BasicDatePicker";
 import Participant from "../addTransaction/Participant";
 import axiosClient from "../../axios-client";
 import iconMappings from "../../icon-mappings";
+import { useNavigate } from "react-router-dom";
+
+
 
 
 
@@ -24,7 +27,7 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
  
 
   const [groupExpenseShowPopUp, setGroupExpenseShowPopUp] = useState(false);
-
+  const navigate = useNavigate();
 
  
 
@@ -61,6 +64,30 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
   
   
 
+
+  const handleDeleteTransaction = (e) => {
+    e.preventDefault();
+    // Show a confirmation dialog or proceed directly with the delete request
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      axiosClient
+        .delete(`/transactions/${transaction.id}`)  // Make sure your URL is correct
+        .then((response) => {
+          // On success, you might want to update the state or redirect
+          alert(response.data.message);
+          // Optional: You could redirect to another page, or update the list of transactions in your state
+          setTransaction(null);  // Clear the transaction state, or navigate away
+          navigate('/transaction')
+        })
+        .catch((error) => {
+          if (error.response) {
+            // Handle error (e.g., Unauthorized or any server-side error)
+            alert(error.response.data.message || 'Error deleting transaction');
+          } else {
+            alert('Error deleting transaction');
+          }
+        });
+    }
+  };
 
 
 
@@ -260,26 +287,33 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
                   {/* // Show participant input if Group Expense is ON */}
                   
                     {transaction.participants.map((participant, index) => (
-                    <div key={index} className="flex justify-between gap-2">
+                    <div key={index} className="flex flex-col border border-[#adccbd]
+                        p-2 rounded-xl gap-2">
                         
-                        <div className="flex-[.4] whitespace-nowrap">
-                            {participant.name}
-                        </div>
-                                
-                            
+                        <div className="flex justify-between gap-2 font-semibold">
+                          <div className="flex-[.1] whitespace-nowrap">
+                            {index + 1}
+                          </div>
                         
-                        
-                        <div className="flex-[.3]">
-                            RM{participant.pivot.amount_owed}
-                        </div>
+                          <div className="flex-[.6] whitespace-nowrap">
+                              {participant.name}
+                          </div>
+                                  
+                          
+                          <div className="flex-[.2]">
+                              RM{participant.pivot.amount_owed}
+                          </div>
 
-                        <div className="flex-[.3]">
+                          <div className="flex-[.2] text-right text-red-500">     
                             {participant.pivot.payment_status}
-                        </div>
+                          </div>
 
-                        <button className="underline text-red-600">
-                            Paid
+                        </div>
+                        
+                        <button className="underline text-gray-500 text-supersmall text-right">
+                              Already received? Click me
                         </button>
+                        
                         
                         </div>
                     ))}
@@ -303,12 +337,24 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
               <input 
                 type="text" 
                 placeholder="Click to fill in the remarks"
-                value={transaction.description}
+                value={transaction.description || ""}
                 onChange={(e) => setTransaction((prev) => ({ ...prev, description: e.target.value }))}
               />
             </div>
           </div>
           <div className="w-full h-[1px] bg-[#adccbd]"></div>
+
+          {/* Note Section */}
+          <div className="flex flex-col gap-2">
+          
+           <button className="text-red-500 text-left" onClick={handleDeleteTransaction}>
+            <p className="font-small uppercase mt-4">Delete</p>
+
+           </button>
+          </div>
+          
+
+
         </div>
       </form>
     </div>

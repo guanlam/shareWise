@@ -17,7 +17,7 @@ const defaultTransaction = {
   date: new Date().toISOString().split("T")[0],
   group_expense: false,
   recurrence: false,
-  description: null,
+  description: "",
 };
 
 function AddTransaction() {
@@ -55,7 +55,7 @@ function AddTransaction() {
     }
   }, [location.state, existingTransaction]);
 
-  console.log(transaction)
+  console.log(action)
 
   return (
     <div className="flex gap-4 size-full justify-between flex-wrap">
@@ -80,7 +80,7 @@ function AddTransaction() {
       </Section>
 
       <Section className="flex flex-col justify-between gap-8">
-        <SubmitTransaction transaction={transaction} />
+        <SubmitTransaction transaction={transaction} action={action} />
         {activePanel === "calculator" ? (
           <Calculator
             transaction={transaction}

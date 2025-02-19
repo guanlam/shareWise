@@ -27,6 +27,7 @@ class UpdateTransactionRequest extends FormRequest
             'type' => 'sometimes|in:Income,Expense',
             'description' => 'nullable|string',
             'group_expense' => 'boolean',
+            'recurrence' => 'boolean',
             'category_id' => 'sometimes|exists:categories,id',
             'payment_method_id' => 'sometimes|exists:payment_methods,id',
         ];

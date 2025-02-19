@@ -26,6 +26,7 @@ function Transaction() {
         // Transform each transaction: if Expense, make adjustedAmount negative
         const transformed = res.data.map((txn) => ({
           ...txn,
+          recurrence: txn.recurrence ?? 0,
           adjustedAmount:
             txn.type === "Expense"
               ? -parseFloat(txn.amount)

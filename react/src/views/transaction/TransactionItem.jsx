@@ -2,6 +2,9 @@ import React from "react";
 import iconMappings from "../icon-mappings"; // Adjust the path if needed
 import { useNavigate } from "react-router-dom";
 
+import RecurrenceIcon from '@mui/icons-material/EventRepeat';
+import GroupIcon from '@mui/icons-material/Group';
+
 function TransactionItem({ transaction }) {
     const navigate = useNavigate();
     // Determine the appropriate icon component based on the category's icon name.
@@ -15,6 +18,7 @@ function TransactionItem({ transaction }) {
         navigate("/addTransaction", { state: { transaction, action: "edit" } }); 
     };
     
+    console.log(transaction.recurrence);
 
     return (
         <div
@@ -37,10 +41,30 @@ function TransactionItem({ transaction }) {
                     <h3 className="font-semibold">
                         {transaction.category?.name}
                     </h3>
-                    <p className="text-small text-gray-500">
-                        {transaction.payment_method?.name} •{" "}
-                        {transaction.description}
+                    <p className="text-small text-gray-500 flex items-center space-x-1">
+                        <span>{transaction.payment_method?.name}</span>
+                        {transaction.description && (
+                            <>
+                            <span>•</span>
+                            <span>{transaction.description}</span>
+                            </>
+                        )}
+                        {Boolean(transaction.recurrence) && (
+                            <>
+                            <span>•</span>
+                            <span><RecurrenceIcon fontSize="small" /></span>
+                            </>
+                        )}
+                        {Boolean(transaction.group_expense) && (
+                            <>
+                            <span>•</span>
+                            <span><GroupIcon fontSize="small" /></span>
+                            </>
+                        )}
                     </p>
+
+
+
                 </div>
             </div>
             <p
