@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  ChevronRight as ChevronRightIcon,
-  // Import additional icons
-} from "@mui/icons-material";
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 import DebitCardIcon from '@mui/icons-material/CreditCard';
 import FoodnDrinkIcon from '@mui/icons-material/Fastfood';

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ParticipantController;
 use App\Http\Controllers\Api\PaymentMethodController;
@@ -43,8 +44,9 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::apiResource('categories',CategoryController::class);
     Route::apiResource('payment-methods', PaymentMethodController::class);
     Route::apiResource('participants', ParticipantController::class);
+    Route::apiResource('budgets', BudgetController::class);
     
-    
+    Route::get('/budget-transactions', [TransactionController::class, 'getBudgetTransactions']);
 
 
 });

@@ -46,7 +46,7 @@ function DefaultLayout() {
         <main className='size-full overflow-y-auto'>
               <Outlet />
         </main>
-        <footer className='bg-white w-[100%] h-[12vh] rounded-xl'>
+        <footer className='bg-white w-[100%] h-[12vh] rounded-xl mt-4'>
           <nav className='w-[100%] h-[100%]'>
             <ul className='flex justify-around items-center w-[100%] h-[100%]'>
               <Link to='/dashboard'>

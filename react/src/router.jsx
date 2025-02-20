@@ -10,6 +10,7 @@ import Transaction from './views/transaction/Transaction';
 import AddTransaction from './views/transaction/addTransaction/AddTransaction';
 import ExpenseByCategory from './views/dashboard/ExpenseByCategory';
 import Dashboard from './views/dashboard/Dashboard';
+import Budget from './views/budget/Budget';
 
 
 
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             {
                 path: '/dashboard',
                 element: <Dashboard />
+            },
+            {
+                path: '/budget',
+                element: <Budget />
             },
             // {
             //     path: '/users/new',
