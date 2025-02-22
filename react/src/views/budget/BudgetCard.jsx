@@ -5,7 +5,7 @@ import iconMappings from "../icon-mappings";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axiosClient from "../axios-client";
 
-function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEditPopUp }) {
+function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEditPopUp, refreshBudgets, refreshArchiveBudgets,isArchived }) {
   const totalSpent = calculateBudgetProgress(budget, transactions);
   const progressPercent = (totalSpent / budget.amount) * 100;
   const progressColor = progressPercent > 100 ? "#c93a3a" : "#24bf31";
@@ -38,6 +38,11 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
     };
   }, []);
 
+  const handleEdit = () => {
+    setEditBudget(budget);
+    setShowEditPopUp(true);
+    setIsOpen(false); // Close the dropdown
+  };
 
   // Delete handler: calls API to delete the budget and notifies parent
   const handleDelete = () => {
@@ -50,10 +55,35 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
       })
       .catch((err) => console.error("Error deleting budget:", err));
   };
-  const handleEdit = () => {
-    setEditBudget(budget);
-    setShowEditPopUp(true);
-    setIsOpen(false); // Close the dropdown
+
+  // Handle unarchive - toggle archived to false
+  const handleUnarchive = (budgetId) => {
+    axiosClient
+      .patch(`/budgets/${budgetId}/unarchive`)
+      .then((response) => {
+        console.log(response.data.message);
+        // Refresh the budgets after unarchiving
+        refreshBudgets();
+        refreshArchiveBudgets();
+      })
+      .catch((error) => {
+        console.error("There was an error unarchiving the budget:", error);
+      });
+  };
+
+  // Handle Archive - Toggle archived to true
+  const handleArchive = (budgetId) => {
+    axiosClient
+      .patch(`/budgets/${budgetId}/archive`)
+      .then((response) => {
+        console.log(response.data.message);
+        // Refresh the budgets after archiving
+        refreshBudgets();
+        refreshArchiveBudgets();
+      })
+      .catch((error) => {
+        console.error("There was an error archiving the budget:", error);
+      });
   };
 
   return (
@@ -78,7 +108,7 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
         {/* Dropdown toggle button */}
         <div className="relative cursor-pointer" ref={dropdownRef}>
           <MoreVertIcon fontSize="medium" onClick={toggleOptions} />
-          {isOpen && (
+          {isOpen && !isArchived && (
             <div className="absolute right-5 top-0 bg-white z-20 border rounded-md shadow-lg text-small">
               {/* Triangle pointer */}
               <div className="absolute right-[-9px] top-[4px] border-x-8 border-x-transparent border-b-8 border-b-white rotate-90"></div>
@@ -89,8 +119,21 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
               <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={handleDelete}>
                 Delete
               </button>
-              <button className="block px-3 py-1 hover:bg-gray-100 w-full">
+              <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={() => handleArchive(budget.id)}>
                 Archive
+              </button>
+            </div>
+          )}
+          {isOpen && isArchived && (
+            <div className="absolute right-5 top-0 bg-white z-20 border rounded-md shadow-lg text-small">
+              {/* Triangle pointer */}
+              <div className="absolute right-[-9px] top-[4px] border-x-8 border-x-transparent border-b-8 border-b-white rotate-90"></div>
+
+              <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={handleDelete}>
+                Delete
+              </button>
+              <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={() => handleUnarchive(budget.id)}>
+                Unarchive
               </button>
             </div>
           )}
@@ -111,3 +154,4 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
 }
 
 export default BudgetCard;
+

@@ -13,11 +13,28 @@ class BudgetController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $budgets = Budget::where('user_id', Auth::id())->with('category')->get();
+        $query = Budget::where('user_id', Auth::id())->with('category');
+
+        // Check if 'archived' query parameter is provided
+        if ($request->has('archived')) {
+            $archived = $request->query('archived');
+            
+            // Filter based on archived status (true or false)
+            if ($archived === 'true') {
+                $query->where('archived', true);
+            } elseif ($archived === 'false') {
+                $query->where('archived', false);
+            }
+        }
+
+        // Fetch the filtered budgets
+        $budgets = $query->get();
+
         return response()->json($budgets);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -136,5 +153,18 @@ class BudgetController extends Controller
 
         // Return a response
         return response()->json(['message' => 'Budget archived successfully']);
+    }
+
+    public function unarchive($id)
+    {
+        // Find the budget by ID
+        $budget = Budget::findOrFail($id);
+
+        // Update the 'archived' field to true
+        $budget->archived = false;
+        $budget->save();
+
+        // Return a response
+        return response()->json(['message' => 'Budget unarchived successfully']);
     }
 }

@@ -8,7 +8,7 @@ import iconMappings from "../icon-mappings";
 import { format } from "date-fns";
 
 
-function AddBudget({onClose, setBudgets}) {
+function AddBudget({onClose, setBudgets, refreshBudgets}) {
     // State for the budget form (for adding a new budget)
     const [budget, setBudget] = useState({
         name: "",
@@ -69,7 +69,7 @@ function AddBudget({onClose, setBudgets}) {
       .post("/budgets", budget)
       .then((res) => {
         // Refresh budgets list after adding
-        axiosClient.get("/budgets").then((res) => setBudgets(res.data));
+        refreshBudgets();
         onClose();
         console.log("Budget stored:", res.data.budget);
         
