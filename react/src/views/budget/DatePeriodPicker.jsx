@@ -122,7 +122,7 @@ const DatePeriodPickerPopup = ({ initialRange, onSelect, onClose }) => {
   );
 };
 
-export default function DatePeriodPicker({ onSelectRange }) {
+export default function DatePeriodPicker({ onSelectRange, editBudget }) {
   const [selectedRange, setSelectedRange] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -144,7 +144,9 @@ export default function DatePeriodPicker({ onSelectRange }) {
       >
         {selectedRange
           ? `${format(selectedRange.startDate, 'd/M/yyyy')} - ${format(selectedRange.endDate, 'd/M/yyyy')}`
-          : 'Select Budget Period'}
+          : (editBudget ? `${format(editBudget.start_date,'d/M/yyyy')} - ${format(editBudget.end_date,'d/M/yyyy')}` : 'Select Budget Period')}
+        {/* if editBudget is true, then the initial range will be the start_date and end_date of the budget */}
+       
       </button>
       {showPicker && (
         <DatePeriodPickerPopup

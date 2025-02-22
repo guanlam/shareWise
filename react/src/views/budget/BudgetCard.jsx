@@ -3,8 +3,9 @@ import ProgressBar from "../components/ProgressBar"; // Your progress bar compon
 import calculateBudgetProgress from "./calculate/calculateBudgetProgress";
 import iconMappings from "../icon-mappings";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import axiosClient from "../axios-client";
 
-function BudgetCard({ budget, transactions }) {
+function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEditPopUp }) {
   const totalSpent = calculateBudgetProgress(budget, transactions);
   const progressPercent = (totalSpent / budget.amount) * 100;
   const progressColor = progressPercent > 100 ? "#c93a3a" : "#24bf31";
@@ -37,6 +38,24 @@ function BudgetCard({ budget, transactions }) {
     };
   }, []);
 
+
+  // Delete handler: calls API to delete the budget and notifies parent
+  const handleDelete = () => {
+    axiosClient
+      .delete(`/budgets/${budget.id}`)
+      .then(() => {
+        if (onDelete) {
+          onDelete(budget.id);
+        }
+      })
+      .catch((err) => console.error("Error deleting budget:", err));
+  };
+  const handleEdit = () => {
+    setEditBudget(budget);
+    setShowEditPopUp(true);
+    setIsOpen(false); // Close the dropdown
+  };
+
   return (
     <div className="flex border flex-col border-light-gray rounded-lg p-4 gap-4">
       {/* Render budget details */}
@@ -64,10 +83,10 @@ function BudgetCard({ budget, transactions }) {
               {/* Triangle pointer */}
               <div className="absolute right-[-9px] top-[4px] border-x-8 border-x-transparent border-b-8 border-b-white rotate-90"></div>
 
-              <button className="block px-3 py-1 hover:bg-gray-100 w-full">
+              <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={handleEdit}>
                 Edit
               </button>
-              <button className="block px-3 py-1 hover:bg-gray-100 w-full">
+              <button className="block px-3 py-1 hover:bg-gray-100 w-full" onClick={handleDelete}>
                 Delete
               </button>
               <button className="block px-3 py-1 hover:bg-gray-100 w-full">
@@ -79,7 +98,7 @@ function BudgetCard({ budget, transactions }) {
       </div>
 
       <div>
-        <ProgressBar bgcolor={progressColor} completed={Math.min(progressPercent, 100)} />
+        <ProgressBar bgcolor={progressColor} completed={progressPercent} />
       </div>
       <div className="flex justify-between items-center">
         <p className="text-supersmall font-bold" style={{ color: progressColor }}>

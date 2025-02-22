@@ -15,8 +15,9 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Get the type query parameter, e.g. ?type=Expense or ?type=Income
+        // Get the type and id query parameters
         $type = $request->input('type');
+        $id = $request->input('id');
 
         // Build a query to include predefined categories (user_id is null)
         // or those created by the authenticated user.
@@ -30,10 +31,17 @@ class CategoryController extends Controller
             $query->where('type', $type);
         }
 
+        // If an id is provided, filter by that id.
+        if ($id) {
+            $query->where('id', $id);
+        }
+
+        // Execute the query and get the categories
         $categories = $query->get();
 
         return response()->json($categories);
     }
+
     /**
      * Store a newly created resource in storage.
      */

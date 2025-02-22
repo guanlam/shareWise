@@ -64,7 +64,7 @@ function Dashboard() {
                     income={filteredIncome}
                     expense={Math.abs(filteredExpense)}
                 />
-                <div className='h-[40vh] bg-light-mint rounded-xl'>
+                <div className='h-[38vh] bg-light-mint rounded-xl'>
                     <TransactionList title="Recent Transaction" transactions={filteredTransactions} loading={loading} />
                 </div>
                 

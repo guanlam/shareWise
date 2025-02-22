@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function (){
     
     Route::get('/budget-transactions', [TransactionController::class, 'getBudgetTransactions']);
 
-
+    Route::patch('/budgets/{id}/archive', [BudgetController::class, 'archive']);
 });
 
 //User module

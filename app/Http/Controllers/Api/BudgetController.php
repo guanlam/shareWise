@@ -60,16 +60,42 @@ class BudgetController extends Controller
      */
     public function update(Request $request, Budget $budget)
     {
-        //
+        // Validate the request data and update the budget in one step
+        $budget->update($request->validate([
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'type' => 'required|in:Expense,Income',
+            'category_id' => 'required|exists:categories,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+        ]));
+
+        // Return the updated budget and a success message
+        return response()->json([
+            'message' => 'Budget updated successfully!',
+            'budget' => $budget
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Budget $budget)
     {
-        //
+        // Optionally, ensure the budget belongs to the authenticated user.
+        if ($budget->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $budget->delete();
+            return response()->json(['message' => 'Budget deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Deletion failed.', 'error' => $e->getMessage()], 500);
+        }
     }
+
 
 
 
@@ -97,5 +123,18 @@ class BudgetController extends Controller
         $total = $query->sum('amount');
 
         return response()->json(['total' => $total]);
+    }
+
+    public function archive($id)
+    {
+        // Find the budget by ID
+        $budget = Budget::findOrFail($id);
+
+        // Update the 'archived' field to true
+        $budget->archived = true;
+        $budget->save();
+
+        // Return a response
+        return response()->json(['message' => 'Budget archived successfully']);
     }
 }
