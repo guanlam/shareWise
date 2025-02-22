@@ -44,6 +44,17 @@ function Budget() {
         .catch((err) => console.error(err));
     }, []);
 
+    useEffect(()=> {
+      axiosClient
+      .get('/budgets/?archived=true') 
+      .then((res) => {
+        setArchiveBudgets(res.data);
+      })
+      .catch((err) => {
+        console.error("Error archiving budget:", err);       
+      });
+    },[]);
+
     // Function to refresh budgets after an update
     const refreshBudgets = () => {
       axiosClient

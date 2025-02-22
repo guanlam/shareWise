@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Participant;
 use App\Models\Recurrence;
 use App\Models\Transaction;
 use App\Models\TransactionParticipant;
@@ -143,4 +144,66 @@ class TransactionController extends Controller
         $transaction->delete();
         return response()->json(['message' => 'Transaction deleted successfully']);
     }
+
+    // public function updateParticipantStatus(Request $request, Transaction $transaction, Participant $participant)
+    // {
+    //     $request->validate([
+    //         'payment_status' => 'required|string'
+    //     ]);
+
+    //     // Update the pivot table using updateExistingPivot
+    //     $transaction->participants()->updateExistingPivot($participant->id, [
+    //         'payment_status' => $request->payment_status,
+    //     ]);
+
+    //     $transaction->amount = $transaction->amount - $transaction->participants()->amount_owned;
+    //     $transaction->save(); 
+
+        
+
+    //     return response()->json(['message' => 'Payment status updated successfully',$transaction]);
+    // }
+
+    public function updateParticipantStatus(Request $request, Transaction $transaction, Participant $participant)
+    {
+        $request->validate([
+            'payment_status' => 'required|string'
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $transaction, $participant) {
+                // Update the pivot table to mark the participant as paid.
+                $transaction->participants()->updateExistingPivot($participant->id, [
+                    'payment_status' => $request->payment_status,
+                ]);
+
+                // Retrieve the pivot record for this participant.
+                $pivotRecord = TransactionParticipant::where('transaction_id', $transaction->id)
+                    ->where('participant_id', $participant->id)
+                    ->first();
+
+                if ($pivotRecord && isset($pivotRecord->amount_owed)) {
+                    // Deduct the paid amount from the transaction's amount.
+                    $paidAmount = floatval($pivotRecord->amount_owed);
+                    $transaction->amount = floatval($transaction->amount) - $paidAmount;
+                    $transaction->save();
+                }
+            });
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update payment status: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Payment status updated successfully',
+            'transaction' => $transaction
+        ]);
+    }
+
+
+    
+
+
+
 }

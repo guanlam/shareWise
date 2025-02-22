@@ -33,7 +33,7 @@ function Transaction() {
               : parseFloat(txn.amount),
         }));
         setAllTransactions(transformed);
-        console.log(transformed);
+        // console.log(transformed);
         setLoading(false);
       })
       .catch((err) => {

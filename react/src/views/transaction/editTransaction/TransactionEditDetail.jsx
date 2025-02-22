@@ -91,6 +91,57 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
 
 
 
+  // const handleMarkAsPaid = (participantId) => {
+  //   axiosClient
+  //     .patch(`/transactions/${transaction.id}/participants/${participantId}`, {
+  //       payment_status: "Paid",
+  //     })
+  //     .then((response) => {
+  //       // Update state to reflect the change in payment status
+  //       setTransaction((prev) => ({
+  //         ...prev,
+  //         participants: prev.participants.map((participant) =>
+  //           participant.id === participantId
+  //             ? { ...participant, pivot: { ...participant.pivot, payment_status: "Paid" } }
+  //             : participant
+  //         ),
+  //       }));
+  //       console.log(response);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error updating payment status:", error);
+  //       alert("Error updating payment status");
+  //     });
+  // };
+
+  const handleMarkAsPaid = (participantId) => {
+    // Find the participant to get the amount owed
+    const participant = transaction.participants.find(p => p.id === participantId);
+    if (!participant) return;
+  
+    const paidAmount = parseFloat(participant.pivot.amount_owed);
+  
+    axiosClient
+      .patch(`/transactions/${transaction.id}/participants/${participantId}`, {
+        payment_status: "Paid",
+      })
+      .then((response) => {
+        // Deduct the paid amount directly from the transaction's amount.
+        setTransaction((prev) => ({
+          ...prev,
+          amount: (parseFloat(prev.amount) - paidAmount).toFixed(2),
+          participants: prev.participants.map((p) =>
+            p.id === participantId
+              ? { ...p, pivot: { ...p.pivot, payment_status: "Paid" } }
+              : p
+          ),
+        }));
+      })
+      .catch((error) => {
+        console.error("Error updating payment status:", error);
+        alert("Error updating payment status");
+      });
+  };
   
   
  
@@ -304,13 +355,18 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
                               RM{participant.pivot.amount_owed}
                           </div>
 
-                          <div className="flex-[.2] text-right text-red-500">     
+                          <div className={`flex-[.2] text-right ${participant.pivot.payment_status === "Paid" ? "text-green-500" : "text-red-500"}`}>
                             {participant.pivot.payment_status}
                           </div>
 
+
                         </div>
                         
-                        <button className="underline text-gray-500 text-supersmall text-right">
+                        <button className="underline text-gray-500 text-supersmall text-right" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleMarkAsPaid(participant.id);
+                        }}>
                               Already received? Click me
                         </button>
                         

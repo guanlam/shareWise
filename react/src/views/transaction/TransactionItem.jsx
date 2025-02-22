@@ -18,7 +18,7 @@ function TransactionItem({ transaction }) {
         navigate("/addTransaction", { state: { transaction, action: "edit" } }); 
     };
     
-    console.log(transaction.recurrence);
+    // console.log(transaction.recurrence);
 
     return (
         <div

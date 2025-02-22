@@ -47,6 +47,8 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::apiResource('budgets', BudgetController::class);
     
     Route::get('/budget-transactions', [TransactionController::class, 'getBudgetTransactions']);
+    //Update the payment_status to Paid
+    Route::patch('transactions/{transaction}/participants/{participant}', [TransactionController::class,'updateParticipantStatus']);
 
     Route::patch('/budgets/{id}/archive', [BudgetController::class, 'archive']);
     Route::patch('/budgets/{id}/unarchive', [BudgetController::class, 'unarchive']);
