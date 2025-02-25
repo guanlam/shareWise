@@ -20,10 +20,7 @@ const router = createBrowserRouter([
         path: '/',
         element: <DefaultLayout />,
         children:[
-            // {
-            //     path: '/',
-            //     element: <Navigate to='/users' />
-            // },
+            
             {
                 path: '/user',
                 element: <User />
@@ -44,18 +41,7 @@ const router = createBrowserRouter([
                 path: '/budget',
                 element: <Budget />
             },
-            // {
-            //     path: '/users/new',
-            //     element: <UserForm key='userCreate'/>
-            // },
-            // {
-            //     path: '/users/:id',
-            //     element: <UserForm key='userUpdate' />
-            // },
-            // {
-            //     path: '/dashboard',
-            //     element: <Dashboard />
-            // },
+            
         ]
     },
     {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Mail\GroupExpenseEmail;
 use App\Models\Participant;
 use App\Models\Recurrence;
 use App\Models\Transaction;
@@ -13,6 +14,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class TransactionController extends Controller
 {
@@ -38,53 +43,99 @@ class TransactionController extends Controller
      */
 
 
-    public function store(StoreTransactionRequest $request)
-    {
-        DB::beginTransaction(); // Start transaction to prevent partial inserts
-
-        try {
-            $data = $request->validated();
-
-            // Create transaction (exclude recurrence_frequency)
-            $transaction = Transaction::create([
-                'date' => $data['date'],
-                'amount' => $data['amount'],
-                'type' => $data['type'],
-                'description' => $data['description'] ?? null,
-                'group_expense' => $data['group_expense'] ?? false,
-                'recurrence' => $data['recurrence'] ?? false,
-                'category_id' => $data['category_id'],
-                'payment_method_id' => $data['payment_method_id'],
-                'user_id' => auth()->id(),
-            ]);
-
-            // ✅ Save Participants If Group Expense is True
-            if ($data['group_expense']) {
-                foreach ($data['participants'] as $participant) {
-                    $transaction->participants()->attach($participant['participant_id'], [
-                        'amount_owed' => $participant['amount_owed'],
-                        'payment_status' => 'Pending'
-                    ]);
-                }
-            }
-
-            // ✅ If recurrence is true, create a recurrence record
-            if ($data['recurrence']) {
-                Recurrence::create([
-                    'transaction_id' => $transaction->id,
-                    'frequency' => $data['recurrence_frequency'], // Store in recurrences table
-                    'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
-                ]);
-            }
-
-            DB::commit(); // Commit the transaction
-
-            return response()->json(['message' => 'Transaction created successfully', 'transaction' => $transaction], 201);
-        } catch (\Exception $e) {
-            DB::rollBack(); // Rollback if anything fails
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+     public function store(StoreTransactionRequest $request)
+     {
+         DB::beginTransaction(); // Start transaction to prevent partial inserts
+     
+         try {
+             $data = $request->validated();
+     
+             // Create transaction (exclude recurrence_frequency)
+             $transaction = Transaction::create([
+                 'date' => $data['date'],
+                 'amount' => $data['amount'],
+                 'type' => $data['type'],
+                 'description' => $data['description'] ?? null,
+                 'group_expense' => $data['group_expense'] ?? false,
+                 'recurrence' => $data['recurrence'] ?? false,
+                 'category_id' => $data['category_id'],
+                 'payment_method_id' => $data['payment_method_id'],
+                 'user_id' => auth()->id(),
+             ]);
+     
+             // ✅ Save Participants If Group Expense is True
+             if ($data['group_expense']) {
+                 foreach ($data['participants'] as $participantData) {
+                     $transaction->participants()->attach($participantData['participant_id'], [
+                         'amount_owed' => $participantData['amount_owed'],
+                         'payment_status' => 'Pending'
+                     ]);
+                 }
+             }
+     
+             // ✅ If recurrence is true, create a recurrence record
+             if ($data['recurrence']) {
+                 Recurrence::create([
+                     'transaction_id' => $transaction->id,
+                     'frequency' => $data['recurrence_frequency'], // Store in recurrences table
+                     'next_generated_date' => $this->calculateNextDate($data['recurrence_frequency'], $data['date']),
+                 ]);
+             }
+     
+             DB::commit(); // Commit the transaction
+     
+             // ----- STEP 3: Send Email Notifications for Group Expense -----
+             if ($data['group_expense']) {
+                 // Optionally load the transaction's user (creator) if needed in the email
+                 $transaction->load('user');
+     
+                 // Prepare a base64 version of your logo for the email (if needed)
+                 $imagePath = public_path('images/logo-only.png');
+                 $base64Image = file_exists($imagePath) ? base64_encode(file_get_contents($imagePath)) : null;
+     
+                 // Loop through each participant to send them a personalized email
+                 foreach ($data['participants'] as $participantData) {
+                     // Retrieve the Participant model to get name & email
+                     $participant = Participant::find($participantData['participant_id']);
+     
+                     if ($participant) {
+                         // Generate a signed URL for "Mark as Paid" action (valid for 2 days)
+                         $markAsPaidUrl = URL::temporarySignedRoute(
+                             'markAsPaid',  // Make sure you have this route defined
+                             now()->addDays(2),
+                             [
+                                 'transaction' => $transaction->id,
+                                 'participant' => $participant->id,
+                             ]
+                         );
+     
+                         // Get the amount owed for this participant
+                         $amountOwed = $participantData['amount_owed'];
+     
+                         // Send the email using your mailable
+                         Mail::to($participant->email)
+                             ->send(new GroupExpenseEmail(
+                                 $participant,
+                                 $transaction,
+                                 $amountOwed,
+                                 $markAsPaidUrl,
+                                 $base64Image
+                             ));
+                     }
+                 }
+             }
+             // --------------------------------------------------------------
+     
+             return response()->json([
+                 'message' => 'Transaction created successfully',
+                 'transaction' => $transaction
+             ], 201);
+         } catch (\Exception $e) {
+             DB::rollBack(); // Rollback if anything fails
+             return response()->json(['error' => $e->getMessage()], 500);
+         }
+     }
+     
 
 
 
@@ -145,24 +196,7 @@ class TransactionController extends Controller
         return response()->json(['message' => 'Transaction deleted successfully']);
     }
 
-    // public function updateParticipantStatus(Request $request, Transaction $transaction, Participant $participant)
-    // {
-    //     $request->validate([
-    //         'payment_status' => 'required|string'
-    //     ]);
 
-    //     // Update the pivot table using updateExistingPivot
-    //     $transaction->participants()->updateExistingPivot($participant->id, [
-    //         'payment_status' => $request->payment_status,
-    //     ]);
-
-    //     $transaction->amount = $transaction->amount - $transaction->participants()->amount_owned;
-    //     $transaction->save(); 
-
-        
-
-    //     return response()->json(['message' => 'Payment status updated successfully',$transaction]);
-    // }
 
     public function updateParticipantStatus(Request $request, Transaction $transaction, Participant $participant)
     {
@@ -172,18 +206,28 @@ class TransactionController extends Controller
 
         try {
             DB::transaction(function () use ($request, $transaction, $participant) {
-                // Update the pivot table to mark the participant as paid.
-                $transaction->participants()->updateExistingPivot($participant->id, [
-                    'payment_status' => $request->payment_status,
-                ]);
-
                 // Retrieve the pivot record for this participant.
                 $pivotRecord = TransactionParticipant::where('transaction_id', $transaction->id)
                     ->where('participant_id', $participant->id)
                     ->first();
 
-                if ($pivotRecord && isset($pivotRecord->amount_owed)) {
-                    // Deduct the paid amount from the transaction's amount.
+                if (!$pivotRecord) {
+                    throw new \Exception('Pivot record not found.');
+                }
+
+                // Check if the payment is already marked as "Paid"
+                if ($pivotRecord->payment_status === 'Paid') {
+                    // Payment already processed; do nothing.
+                    return;
+                }
+
+                // Update the pivot record to mark the participant as paid.
+                $transaction->participants()->updateExistingPivot($participant->id, [
+                    'payment_status' => $request->payment_status,
+                ]);
+
+                // Deduct the paid amount from the transaction's amount.
+                if (isset($pivotRecord->amount_owed)) {
                     $paidAmount = floatval($pivotRecord->amount_owed);
                     $transaction->amount = floatval($transaction->amount) - $paidAmount;
                     $transaction->save();
@@ -200,6 +244,7 @@ class TransactionController extends Controller
             'transaction' => $transaction
         ]);
     }
+
 
 
     

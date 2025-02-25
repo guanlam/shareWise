@@ -55,7 +55,6 @@ function AddTransaction() {
     }
   }, [location.state, existingTransaction]);
 
-  console.log(action)
 
   return (
     <div className="flex gap-4 size-full justify-between flex-wrap">

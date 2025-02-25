@@ -363,8 +363,10 @@ function TransactionEditDetail({ transaction, setTransaction, setActivePanel, se
                         </div>
                         
                         <button className="underline text-gray-500 text-supersmall text-right" 
+                        disabled={participant.pivot.payment_status === "Paid"}
                         onClick={(e) => {
                           e.preventDefault();
+                          
                           handleMarkAsPaid(participant.id);
                         }}>
                               Already received? Click me

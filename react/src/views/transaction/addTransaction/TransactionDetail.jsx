@@ -404,6 +404,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
                                 </option>
                               ))}
                           </select>
+                          <p className="all-center">RM</p>
                           <input
                             type="number"
                             placeholder="Enter Amount"

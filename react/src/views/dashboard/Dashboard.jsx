@@ -16,6 +16,8 @@ function Dashboard() {
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
 
+  const yearDate = {currentMonth,currentYear};
+  
 
   // Fetch transactions on component mount
   useEffect(() => {
@@ -74,7 +76,7 @@ function Dashboard() {
 
             {/* Right Side: Dasboard Pie Chart */}
             <Section className="bg-light-mint overflow-auto">
-                <ExpenseByCategory transactions={filteredTransactions}/>
+                <ExpenseByCategory transactions={filteredTransactions} yearDate={yearDate}/>
             
 
             </Section>
