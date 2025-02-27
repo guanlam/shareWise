@@ -54,11 +54,21 @@
             color: #1c312c;
             text-decoration: none;
         }
+
+        .image{
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Group Expense Payment</h1>
+        
+
+        <div class="image">
+            <img src="cid:logo.png" alt="Logo" width="80px" height="80px">
+        </div>
+
+
         <p>Dear {{ $participant->name }},</p>
         <p>You owe <strong>RM {{ number_format($amountOwed, 2) }}</strong> for a group expense created by {{ $transaction->user->name }}.</p>
         <p>Please click the button below to mark your payment as complete:</p>

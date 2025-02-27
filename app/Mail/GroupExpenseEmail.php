@@ -16,7 +16,7 @@ class GroupExpenseEmail extends Mailable
     public $transaction;
     public $amountOwed;
     public $markAsPaidUrl;
-    public $base64Image;
+    public $imagePath;
 
     /**
      * Create a new message instance.
@@ -25,15 +25,22 @@ class GroupExpenseEmail extends Mailable
      * @param mixed $transaction
      * @param float $amountOwed
      * @param string $markAsPaidUrl
-     * @param string|null $base64Image
+     * @param string|null $imagePath
      */
-    public function __construct($participant, $transaction, $amountOwed, $markAsPaidUrl, $base64Image = null)
+    public function __construct($participant, $transaction, $amountOwed, $markAsPaidUrl, $imagePath = null)
     {
         $this->participant   = $participant;
         $this->transaction   = $transaction;
         $this->amountOwed    = $amountOwed;
         $this->markAsPaidUrl = $markAsPaidUrl;
-        $this->base64Image   = $base64Image;
+        $this->imagePath     = $imagePath;
+
+        if ($this->imagePath && file_exists($this->imagePath)) {
+            $this->attach($this->imagePath, [
+                'as' => 'logo.png',
+                'mime' => 'image/png',
+            ]);
+        }
     }
 
     /**
@@ -63,6 +70,9 @@ class GroupExpenseEmail extends Mailable
      */
     public function attachments(): array
     {
+        
+
         return [];
     }
+
 }

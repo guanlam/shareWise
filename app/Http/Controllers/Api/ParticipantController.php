@@ -26,7 +26,8 @@ class ParticipantController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:participants,email',
+            'email' => 'required|email|max:255|unique:participants,email,NULL,id,user_id,' . Auth::id(), // Unique for each user_id
+            // Null, id meaning is do not check itself first
         ]);
 
         $participant = Participant::create([
@@ -36,6 +37,7 @@ class ParticipantController extends Controller
 
         return response()->json($participant, 201);
     }
+
 
 
     /**

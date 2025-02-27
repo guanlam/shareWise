@@ -93,7 +93,7 @@ const PieChart = ({ data }) => {
       </div>
 
       {/* Category Info Section (You can remove this if you don't want this section below the chart) */}
-      <section className="mt-4 flex gap-4 size-full justify-center css-scrollbar-x">
+      <section className="mt-4 flex gap-4 size-full css-scrollbar-x">
         {data.map((category, index) => {
           const percentage = ((category.value / data.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(2);
 
@@ -103,7 +103,7 @@ const PieChart = ({ data }) => {
             iconMappings["Default"]; // Fallback to default icon
 
           return (
-            <div key={index} className="rounded-xl all-center flex-col p-4 gap-2 bg-white">
+            <div key={index} className="rounded-xl all-center flex-col p-4 gap-2 bg-white min-w-[120px]">
               <div
                 className="w-[2.5rem] h-[2.5rem] flex items-center justify-center rounded-xl"
                 style={{ backgroundColor: category.color }}

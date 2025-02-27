@@ -91,7 +91,7 @@ class TransactionController extends Controller
      
                  // Prepare a base64 version of your logo for the email (if needed)
                  $imagePath = public_path('images/logo-only.png');
-                 $base64Image = file_exists($imagePath) ? base64_encode(file_get_contents($imagePath)) : null;
+                //  $base64Image = file_exists($imagePath) ? base64_encode(file_get_contents($imagePath)) : null;
      
                  // Loop through each participant to send them a personalized email
                  foreach ($data['participants'] as $participantData) {
@@ -119,7 +119,7 @@ class TransactionController extends Controller
                                  $transaction,
                                  $amountOwed,
                                  $markAsPaidUrl,
-                                 $base64Image
+                                 $imagePath
                              ));
                      }
                  }

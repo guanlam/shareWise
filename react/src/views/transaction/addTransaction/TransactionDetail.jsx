@@ -134,7 +134,7 @@ function TransactionDetail({ transaction, setTransaction, setActivePanel, select
         if (field === "amount_owed") {
           // Ensure the total assigned amount does not exceed the total transaction amount
           const totalAssigned = updatedParticipants.reduce((sum, p) => sum + Number(p.amount_owed || 0), 0);
-          if (totalAssigned > transaction.amount_owed) {
+          if (totalAssigned > transaction.amount) {
             return prevParticipants; // Prevent exceeding the total
           }
         }
