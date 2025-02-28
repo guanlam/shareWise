@@ -14,6 +14,7 @@ class MonthlyFinancialReportEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $reportData;
+    public $monthYear;
     /**
      * Create a new message instance.
      *
@@ -22,6 +23,7 @@ class MonthlyFinancialReportEmail extends Mailable
     public function __construct($reportData)
     {
         $this->reportData = $reportData;
+        $this->monthYear = $reportData['monthYear'];
     }
 
     /**
@@ -30,7 +32,7 @@ class MonthlyFinancialReportEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Monthly Financial Report Email',
+            subject: 'Monthly Financial Report Email - ' . $this->monthYear,
         );
     }
 
