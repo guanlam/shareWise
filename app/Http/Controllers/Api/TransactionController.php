@@ -10,6 +10,7 @@ use App\Models\Participant;
 use App\Models\Recurrence;
 use App\Models\Transaction;
 use App\Models\TransactionParticipant;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -244,6 +245,52 @@ class TransactionController extends Controller
             'transaction' => $transaction
         ]);
     }
+
+
+
+    public function downloadMonthlyReport(Request $request, $userId)
+    {
+        // Optionally, verify that the user exists
+        $user = User::findOrFail($userId);
+
+        // Parse the requested month (default to current month)
+        $monthString = $request->query('month', now()->format('Y-m'));
+        $startOfMonth = Carbon::parse($monthString)->startOfMonth();
+        $endOfMonth = Carbon::parse($monthString)->endOfMonth();
+
+        // Fetch transactions for this month with the necessary relationships
+        $transactions = Transaction::with(['category', 'paymentMethod', 'recurrenceData'])
+            ->where('user_id', $userId)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Calculate totals
+        $totalExpense = $transactions->where('type', 'Expense')->sum('amount');
+        $totalIncome = $transactions->where('type', 'Income')->sum('amount');
+        $netBalance = $totalIncome - $totalExpense;
+
+        // Define additional variables
+        $monthYear = $startOfMonth->format('F Y');  // e.g., "December 2024"
+
+        // Load the PDF view with the gathered data
+        $pdf = app('dompdf.wrapper');
+        $pdf->setPaper('a4', 'landscape'); // Change orientation to landscape
+        $pdf->loadView('view.monthly-transaction-report', [
+            'monthYear'    => $monthYear,
+            'userName'     => $user->name,
+            'transactions' => $transactions,
+            'totalExpense' => $totalExpense,
+            'totalIncome'  => $totalIncome,
+            'netBalance'   => $netBalance,
+            'generatedAt'  => now()->toDateTimeString(),
+        ]);
+
+        // Download the PDF file with a dynamic name
+        $fileName = 'TransactionReport-' . $startOfMonth->format('Y-m') . '.pdf';
+        return $pdf->download($fileName);
+    }
+
 
 
 

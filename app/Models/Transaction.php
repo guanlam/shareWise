@@ -45,6 +45,12 @@ class Transaction extends Model
     {
         return $this->hasOne(Recurrence::class);
     }
+
+    public function recurrenceData()
+{
+    return $this->hasOne(\App\Models\Recurrence::class, 'transaction_id', 'id');
+}
+
     
     
 

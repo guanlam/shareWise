@@ -71,12 +71,14 @@
 
         <p>Dear {{ $participant->name }},</p>
         <p>You owe <strong>RM {{ number_format($amountOwed, 2) }}</strong> for a group expense created by {{ $transaction->user->name }}.</p>
+        <p>Category: <strong>{{ $transaction->category->name }}</strong> and Date: <strong>{{ $transaction->date }}</strong>.</p>
         <p>Please click the button below to mark your payment as complete:</p>
         <p>
-            <a href="{{ $markAsPaidUrl }}" class="btn" style="color:white">Mark as Paid</a>
+            <a href="{{ $markAsPaidUrl }}" class="btn" style="color:white;">Mark as Paid</a>
         </p>
         <p>If you did not expect this email, please ignore it.</p>
         <p>Thank you!</p>
+
     </div>
     <div class="footer">
         <p>© 2024 ShareWise Financial Tracker. All rights reserved.</p>

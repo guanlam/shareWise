@@ -49,7 +49,7 @@ class GroupExpenseEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Group Expense Payment'
+            subject: 'Group Expense for ' . $this->participant->name . ' - ' . $this->transaction->category->name . ' - ' . $this->transaction->date
         );
     }
 

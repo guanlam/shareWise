@@ -13,8 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // Add the custom CORS middleware
-        // $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
