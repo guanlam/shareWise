@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ParticipantController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\ForecastController;
 use App\Models\User;
 // use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
@@ -52,6 +53,9 @@ Route::middleware('auth:sanctum')->group(function (){
 
     Route::patch('/budgets/{id}/archive', [BudgetController::class, 'archive']);
     Route::patch('/budgets/{id}/unarchive', [BudgetController::class, 'unarchive']);
+
+
+    Route::get('/historical-monthly-expenses', [ForecastController::class, 'getHistoricalMonthlyExpenses']);
 });
 
 //User module

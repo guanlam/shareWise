@@ -11,6 +11,7 @@ import AddTransaction from './views/transaction/addTransaction/AddTransaction';
 import ExpenseByCategory from './views/dashboard/ExpenseByCategory';
 import Dashboard from './views/dashboard/Dashboard';
 import Budget from './views/budget/Budget';
+import Forecast from './views/aiForecast/Forecast';
 
 
 
@@ -41,7 +42,10 @@ const router = createBrowserRouter([
                 path: '/budget',
                 element: <Budget />
             },
-            
+            {
+                path: '/forecast',
+                element: <Forecast />
+            },
         ]
     },
     {
