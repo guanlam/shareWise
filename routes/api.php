@@ -43,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function (){
     //DELETE /api/transactions/{id}
 
     Route::apiResource('categories',CategoryController::class);
+    Route::get('categories/custom/{type}', [CategoryController::class, 'showCustom']);
+
+
     Route::apiResource('payment-methods', PaymentMethodController::class);
     Route::apiResource('participants', ParticipantController::class);
     Route::apiResource('budgets', BudgetController::class);

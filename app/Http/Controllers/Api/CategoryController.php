@@ -73,8 +73,24 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        // Validate the request inputs
+        $data = $request->validate([
+            'name'  => 'required|string|max:255',
+            'icon'  => 'required|string',
+            'color' => 'required|string',
+            'type'  => 'required|string', // ensure this is provided if needed
+        ]);
+
+        // Update the category record with the validated data
+        $category->update($data);
+
+        // Return a success JSON response (or redirect as needed)
+        return response()->json([
+            'message'  => 'Category updated successfully',
+            'category' => $category
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -82,5 +98,33 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         //
+        // Optionally, ensure the budget belongs to the authenticated user.
+        if ($category->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $category->delete();
+            return response()->json(['message' => 'Category deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Category failed.', 'error' => $e->getMessage()], 500);
+        }
+
     }
+
+
+    public function showCustom($type)
+    {
+        // Query the categories based on the passed 'type' and the authenticated user's 'user_id'
+        $categories = Category::where('type', $type)
+                            ->where('user_id', auth()->id())
+                            ->get();
+
+        
+
+        return response()->json($categories);
+    }
+
+
+
 }
