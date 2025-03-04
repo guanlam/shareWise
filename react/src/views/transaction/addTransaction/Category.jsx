@@ -86,6 +86,9 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
 
   const handleAddClick = () => {
     setShowPopUp(true);
+    setCategoryName('');
+    setColorValue("#1c312c");
+    setSelectedIcon(null);
   };
   const handleSettingClick = () => {
     setShowSettingPopUp(true);

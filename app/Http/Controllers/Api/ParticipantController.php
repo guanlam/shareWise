@@ -53,14 +53,31 @@ class ParticipantController extends Controller
      */
     public function update(Request $request, Participant $participant)
     {
-        //
+        // Validate the incoming request data.
+        $data = $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+        ]);
+
+        // Update the participant record.
+        $participant->update($data);
+
+        // Return a JSON response (or redirect if using web routes).
+        return response()->json([
+            'message'     => 'Participant updated successfully.',
+            'participant' => $participant,
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Participant $participant)
     {
-        //
+        // Delete the participant record.
+        $participant->delete();
+
+        // Return a JSON response.
+        return response()->json([
+            'message' => 'Participant deleted successfully.',
+        ]);
     }
+
 }
