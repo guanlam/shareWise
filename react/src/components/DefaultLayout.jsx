@@ -43,7 +43,7 @@ function DefaultLayout() {
            </div>
            
         </header >
-        <main className='size-full overflow-y-auto'>
+        <main className='size-full overflow-y-auto css-scrollbar'>
               <Outlet />
         </main>
         <footer className='bg-white w-[100%] h-[12vh] rounded-xl mt-4'>

@@ -3,18 +3,73 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
-use App\Services\ChatGPTService;
+use App\Services\DeepseekService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ForecastController extends Controller
 {
-    protected $chatGPT;
-    public function __construct(ChatGPTService $chatGPT)
+    protected $deepseek;
+
+    public function __construct(DeepseekService $deepseek)
     {
-        $this->chatGPT = $chatGPT;
+        $this->deepseek = $deepseek;
     }
+
+    /**
+     * Return a budget suggestion based on previous month income, expense, and next month's forecast.
+     */
+    public function getBudgetSuggestion(Request $request)
+    {
+        // For example, these values could be calculated from your data,
+        // or passed as query parameters for testing.
+        $previousIncome = (float)$request->query('previousIncome', 8000);
+        $previousExpense = (float)$request->query('previousExpense', 3000);
+        $forecastValue = (float)$request->query('forecastValue', 3500);
+
+        $suggestion = $this->deepseek->getBudgetSuggestion($previousIncome, $previousExpense, $forecastValue);
+
+        return response()->json([
+            'suggestion' => $suggestion,
+        ]);
+    }
+
+
+    public function getHistoricalIncome(Request $request)
+    {
+        // Get the current user's ID (assuming the user is authenticated)
+        $userId = auth()->user()->id; // Adjust if using a different authentication method
+
+        // Get the previous month date (using Carbon)
+        $previousMonth = Carbon::now()->subMonth();
+
+        // Get all 'Income' transactions for the current user from the previous month
+        $transactions = Transaction::where('user_id', $userId)
+            ->where('type', 'Income')  // Filter by 'Income' type
+            ->whereMonth('date', $previousMonth->month) // Filter by the previous month
+            ->whereYear('date', $previousMonth->year)  // Filter by the previous year
+            ->get();
+
+        // Group the transactions by 'YYYY-MM' (year and month)
+        $groupedIncome = $transactions->groupBy(function ($item) {
+            return Carbon::parse($item->date)->format('Y-m'); // Group by 'YYYY-MM' format
+        });
+
+        // Calculate the total income for each grouped month
+        $historicalIncome = $groupedIncome->map(function ($items) {
+            return $items->sum('amount'); // Sum the 'amount' field for each month
+        });
+
+        // Return the historical income data as a JSON response
+        return response()->json([
+            'historicalIncome' => $historicalIncome
+        ]);
+    }
+    
+    
+
+
 
     public function getHistoricalMonthlyExpenses(Request $request)
     {
@@ -62,19 +117,6 @@ class ForecastController extends Controller
     }
 
     
-    public function getBudgetSuggestion(Request $request)
-    {
-        // For example, use some parameters from the request (historicalAverage, forecasted value, etc.)
-        $historicalAverage = $request->query('historicalAverage');
-        $forecastValue = $request->query('forecastValue');
-
-        // Build a prompt (this is just an example prompt)
-        $prompt = "A user has a historical average monthly expense of RM {$historicalAverage} and a forecasted expense of RM {$forecastValue}. Provide budget adjustment suggestions to help the user manage their finances more effectively.";
-
-        // Call your ChatGPT service (as explained before)
-        $suggestion = app(ChatGPTService::class)->getSuggestion($prompt);
-
-        return response()->json(['suggestion' => $suggestion]);
-    }
+    
 
 }

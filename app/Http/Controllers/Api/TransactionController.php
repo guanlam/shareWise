@@ -36,7 +36,6 @@ class TransactionController extends Controller
         return response()->json($transactions);
 
 
-        return response()->json($transactions);
     }
 
     /**
