@@ -62,7 +62,7 @@
 
             <p style="text-align:center; margin-top: 1rem; font-size:.8rem;">
                 If you'd like to view more detailed information about your transactions: 
-                <a href="{{ route('report.download', ['userId' => $reportData['user']]) }}"
+                <a href="{{ route('report.download', ['userId' => $reportData['user'], 'month' => $reportData['monthYear']]) }}"
 
                 style="display:inline-block; padding:10px 20px; background-color:#1c312c; color:#fff; text-decoration:none; border-radius:5px; margin-top: 1rem;">
                     Download the full transaction report

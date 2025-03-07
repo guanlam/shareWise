@@ -59,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function (){
 
 
     Route::get('/historical-monthly-expenses', [ForecastController::class, 'getHistoricalMonthlyExpenses']);
+    Route::get('/budget-suggestion', [ForecastController::class, 'getBudgetSuggestion']);
 });
 
 //User module

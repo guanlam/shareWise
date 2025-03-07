@@ -36,7 +36,7 @@ class SendMonthlyReport extends Command
 
     protected function generateReportData(User $user)
     {
-        $now = Carbon::now();
+        $now = Carbon::now()->subMonth();
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth = $now->copy()->endOfMonth();
 

@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Services\ChatGPTService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ForecastController extends Controller
 {
+    protected $chatGPT;
+    public function __construct(ChatGPTService $chatGPT)
+    {
+        $this->chatGPT = $chatGPT;
+    }
+
     public function getHistoricalMonthlyExpenses(Request $request)
     {
         $userId = auth()->id(); // authenticated user
@@ -53,4 +60,21 @@ class ForecastController extends Controller
             'historicalExpenses' => $data // keys are like "2024-03", "2024-04", ..., "2025-01"
         ]);
     }
+
+    
+    public function getBudgetSuggestion(Request $request)
+    {
+        // For example, use some parameters from the request (historicalAverage, forecasted value, etc.)
+        $historicalAverage = $request->query('historicalAverage');
+        $forecastValue = $request->query('forecastValue');
+
+        // Build a prompt (this is just an example prompt)
+        $prompt = "A user has a historical average monthly expense of RM {$historicalAverage} and a forecasted expense of RM {$forecastValue}. Provide budget adjustment suggestions to help the user manage their finances more effectively.";
+
+        // Call your ChatGPT service (as explained before)
+        $suggestion = app(ChatGPTService::class)->getSuggestion($prompt);
+
+        return response()->json(['suggestion' => $suggestion]);
+    }
+
 }

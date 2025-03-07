@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend, DoughnutController } from "chart.js";
 import iconMappings from "../icon-mappings"; // Import your icon mappings
-import { yellow } from "@mui/material/colors";
+
 
 // Register the required components
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
@@ -32,6 +32,17 @@ const centerTextPlugin = {
 };
 
 const PieChart = ({ data }) => {
+
+  useEffect(() => {
+    // Register the centerTextPlugin when the component mounts
+    Chart.register(centerTextPlugin);
+
+    // Clean up: Unregister the plugin when the component unmounts
+    return () => {
+      Chart.unregister(centerTextPlugin);
+    };
+  }, []); // Empty dependency array ensures this effect runs only once
+
   const backgroundColors = data.map((item) => item.color || "#ccc");
 
   const chartData = {
@@ -46,8 +57,7 @@ const PieChart = ({ data }) => {
     ],
   };
 
-  // Register the custom plugin if you need the total in the center (optional)
-  Chart.register(centerTextPlugin);
+  
 
   return (
     <div className="size-full flex flex-col justify-between items-center">
