@@ -103,8 +103,8 @@ function Forecast() {
                 setLoading(false);
             });
 
-            console.log("h:"+ historical);
-    console.log("f:"+ forecast);
+    //         console.log("h:"+ historical);
+    // console.log("f:"+ forecast);
             
 
     }, []);
@@ -163,7 +163,7 @@ function Forecast() {
         },
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div className="size-full all-center">Loading...</div>;
 
     //deepseek suggestion
     const fetchDeepseekSuggestion = () => {
@@ -173,10 +173,10 @@ function Forecast() {
     
       // First, fetch the previous month income data from your income endpoint.
       axiosClient.get("/historical-monthly-income")
-        .then((incomeRes) => {
-          console.log(incomeRes);
+        .then((res) => {
+          console.log(res);
           // Assume the response is { historicalIncome: { "2024-12": value, ... } }
-          const incomeData = incomeRes.data.historicalIncome;
+          const incomeData = res.data.historicalIncome;
           const incomeKeys = Object.keys(incomeData).sort(); // Sorted keys, e.g., "2024-12", "2025-01"
           const lastIncomeKey = incomeKeys[incomeKeys.length - 1];
           const previousMonthIncome = incomeData[lastIncomeKey] || 0;
@@ -186,7 +186,11 @@ function Forecast() {
     
           // Get forecasted expense for next month (assuming forecast array for future months exists)
           const forecastValue = forecast[forecast.length -3] || 0;
-          console.log(forecastValue);
+        //   console.log("Forecast: " + forecastValue);
+
+          const categoryExpense = res.data.categories;
+
+          
           
     
           // Pass necessary parameters to your backend endpoint (e.g. previousIncome, previousExpense, forecastValue)
@@ -195,6 +199,7 @@ function Forecast() {
               previousIncome: previousMonthIncome,  // calculate or store these values in state
               previousExpense: previousMonthExpense,
               forecastValue: forecastValue,
+              categoryExpense: JSON.stringify(categoryExpense),
             },
           })
           .then((res) => {

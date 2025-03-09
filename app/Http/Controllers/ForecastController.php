@@ -27,8 +27,9 @@ class ForecastController extends Controller
         $previousIncome = (float)$request->query('previousIncome', 8000);
         $previousExpense = (float)$request->query('previousExpense', 3000);
         $forecastValue = (float)$request->query('forecastValue', 3500);
+        $categoryExpense = json_decode($request->query('categoryExpense', '[]'), true);
 
-        $suggestion = $this->deepseek->getBudgetSuggestion($previousIncome, $previousExpense, $forecastValue);
+        $suggestion = $this->deepseek->getBudgetSuggestion($previousIncome, $previousExpense, $forecastValue,$categoryExpense);
 
         return response()->json([
             'suggestion' => $suggestion,
@@ -51,6 +52,8 @@ class ForecastController extends Controller
             ->whereYear('date', $previousMonth->year)  // Filter by the previous year
             ->get();
 
+        
+
         // Group the transactions by 'YYYY-MM' (year and month)
         $groupedIncome = $transactions->groupBy(function ($item) {
             return Carbon::parse($item->date)->format('Y-m'); // Group by 'YYYY-MM' format
@@ -61,12 +64,35 @@ class ForecastController extends Controller
             return $items->sum('amount'); // Sum the 'amount' field for each month
         });
 
+        $expenseTransactions = Transaction::where('user_id', $userId)
+            ->where('type', 'Expense')  // Filter by 'Expense' type
+            ->with('category')
+            ->whereMonth('date', $previousMonth->month) // Filter by the previous month
+            ->whereYear('date', $previousMonth->year)  // Filter by the previous year
+            ->get();
+
+        // Group the transactions by 'category.id' and calculate the total amount for each category
+        $groupedExpenses = $expenseTransactions->groupBy(function ($item) {
+            // Group by category ID instead of name
+            return $item->category->id;  // Group by category ID
+        });
+
+        // Calculate the total amount for each category
+        $totalExpensesByCategory = $groupedExpenses->map(function ($items, $categoryId) {
+            return [
+                'categoryName' => $items->first()->category->name,  // Get the category name from the first item
+                'totalAmount' => $items->sum('amount'),  // Sum the 'amount' field for each category
+            ];
+        });
+
         // Return the historical income data as a JSON response
         return response()->json([
-            'historicalIncome' => $historicalIncome
+            'historicalIncome' => $historicalIncome,
+            'categories' => $totalExpensesByCategory
         ]);
     }
     
+
     
 
 
