@@ -36,25 +36,24 @@ class DeepseekService
         //   "Include actionable recommendations on reducing discretionary spending and improving overall savings. " .
         //   "Give the top 3 suggestions only, and output them as a numbered list with each suggestion on a new line (e.g., '...', '...', '...'). plain text, no need label 1. 2. 3. , no need style";
 
-        $prompt = "A user had a total income of RM {$previousIncome} and a total expense of RM {$previousExpense} last month. " . 
-        "The forecasted expense for next month is RM {$forecastValue}. ";
-    
-        // Add information about category expenses
+        $prompt = "Last Month Financial Status:\n" .
+        "Total Income: RM {$previousIncome}\n" .
+        "Total Expense: RM {$previousExpense}\n" .
+        "Forecasted Expense for Next Month: RM {$forecastValue}\n";
+
         if (!empty($categoryExpense)) {
-            $categoryDetails = "";
-            foreach ($categoryExpense as $expense) {
-                // Ensure each category has the necessary data before using it
-                $categoryDetails .= "Spent RM {$expense['totalAmount']} on {$expense['categoryName']}. ";
-            }
-            $prompt .= $categoryDetails;
+        $prompt .= "Category Breakdown:\n";
+        foreach ($categoryExpense as $expense) {
+            $prompt .= "{$expense['categoryName']}: RM {$expense['totalAmount']}\n";
         }
-        
-        // Add budget suggestions
-        $prompt .= "Based on these figures, provide strong and actionable budget adjustment suggestions that will help the user manage their finances better. " . 
-        //    "Focus on reducing discretionary spending and improving overall savings. " . 
-           "Be concise and clear, and give the top 3 suggestions only. " .
-           "Format these suggestions as a plain-text, numbered list, with each suggestion on a new line using the format: ... ... ... " . 
-           "Do not include labels like 1. 2. 3., and do not add any extra styling—just the plain text suggestions with a line break between them.";
+        }
+
+        $prompt .= "\nYou are a financial advisor for ShareWise, a personal financial tracker. Based on the above financial data, provide five specific and actionable budget adjustment suggestions tailored to the user's spending habits. " .
+                "For example, if the user spent a lot on Food and Drink, reference that category in the suggestion. " .
+                "Each suggestion should start with a phrase like 'Based on your ...' and should clearly state a recommendation to reduce spending or improve savings. " .
+                "Be concise and clear. Output your response as a plain text list with exactly five suggestions, each on a new line with no additional numbering or formatting.";
+
+
     
 
         Log::info("Generated Prompt: " . $prompt);

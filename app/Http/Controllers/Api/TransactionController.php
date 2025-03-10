@@ -31,6 +31,7 @@ class TransactionController extends Controller
             ->with(['category', 'paymentMethod', 'recurrence', 'participants' => function ($query) {
                 $query->withPivot('amount_owed', 'payment_status'); // Include pivot table data
             }])
+            ->orderBy('date', 'desc')
             ->get();
 
         return response()->json($transactions);

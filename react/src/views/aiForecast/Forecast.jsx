@@ -163,7 +163,9 @@ function Forecast() {
         },
     };
 
-    if (loading) return <div className="size-full all-center">Loading...</div>;
+    if (loading) return <Section className="flex flex-col gap-4 p-4 bg-light-mint !w-full all-center">
+            <LoadingEffect />
+        </Section>;
 
     //deepseek suggestion
     const fetchDeepseekSuggestion = () => {
@@ -225,6 +227,7 @@ function Forecast() {
     return (
         <>
             <Section className="flex flex-col gap-4 p-4 bg-light-mint !w-full">
+                
                 <h1 className="text-big font-bold text-center">
                     Spending Forecast Monthly
                 </h1>

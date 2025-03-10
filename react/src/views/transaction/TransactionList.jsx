@@ -21,17 +21,43 @@ function TransactionList({ title, transactions, loading }) {
 
     // Function to format date as "Tues. 05/11/2024"
     const formatDate = (dateString) => {
+        const today = new Date();
+        const currentDate = new Date(dateString);
+    
+        // Check if the current date is today
+        const isToday = today.toDateString() === currentDate.toDateString();
+    
+        // Check if the current date is yesterday
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1); // Set yesterday's date
+        const isYesterday = yesterday.toDateString() === currentDate.toDateString();
+    
+        // Get the short weekday name (e.g., "Mon", "Tue", etc.)
+        const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short" }).format(currentDate);
+    
+        // If it's today, return "Mon. Today"
+        if (isToday) {
+            return `${weekday}. Today`;
+        }
+    
+        // If it's yesterday, return "Mon. Yesterday"
+        if (isYesterday) {
+            return `${weekday}. Yesterday`;
+        }
+    
+        // Otherwise, return the formatted date as "Mon. 10/03/2025"
         const options = {
             weekday: "short",
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
         };
-        // Format using en-GB and replace the comma for your desired format
         return new Intl.DateTimeFormat("en-GB", options)
-            .format(new Date(dateString))
+            .format(currentDate)
             .replace(",", ".");
     };
+    
+    
 
     return (
         <>
