@@ -4,7 +4,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import axiosClient from "../../axios-client";
 import CustomButton from "../../components/CustomButton";
-
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 
 function DropdownOptions({ participantId, onEdit, onDelete }) {
@@ -43,6 +44,12 @@ function Participant({ onClose }) {
   // Dropdown state per participant (store the ID of the open one)
   const [openParticipant, setOpenParticipant] = useState(null);
 
+
+  // State for Snackbar visibility and message
+    const [open, setOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [severity, setSeverity] = useState('success'); // 'success' or 'error'
+
   useEffect(() => {
     fetchParticipants();
   }, []);
@@ -65,7 +72,10 @@ function Participant({ onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!newParticipant.name || !newParticipant.email) {
-      alert("Please enter all fields");
+      // alert("Please enter all fields");
+      setAlertMessage("Please enter all fields");
+      setSeverity('error');
+      setOpen(true);
       return;
     }
     axiosClient
@@ -74,8 +84,21 @@ function Participant({ onClose }) {
         fetchParticipants();
         setShowAddForm(false);
         setNewParticipant({ name: "", email: "" });
+        setAlertMessage('Participant added successfully!');
+        setSeverity('success'); // Set to success
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+          setAlertMessage(err.response.data.errors.email);
+          setSeverity('error');
+        }
+        
+      });
   };
 
   // Delete participant
@@ -87,9 +110,13 @@ function Participant({ onClose }) {
         .then((response) => {
           fetchParticipants();
           setOpenParticipant(null);
+
+          setAlertMessage('Transaction deleted successfully!');
+          setSeverity('success'); // Set to success
           console.log(response)
         })
         .catch((err) => console.error("Error deleting participant:", err));
+        
     // }
   };
 
@@ -123,14 +150,31 @@ function Participant({ onClose }) {
         setShowEditForm(false);
         setEditingParticipant(null);
         setEditParticipant({ name: "", email: "" });
+
+        setAlertMessage('Participant updated successfully!');
+        setSeverity('success'); // Set to success
         console.log(res)
       })
       .catch((err) => console.error("Error editing participant:", err));
+      
   };
 
   // Toggle dropdown for a participant
   const toggleDropdown = (participantId) => {
     setOpenParticipant(openParticipant === participantId ? null : participantId);
+  };
+
+
+  // Open the Snackbar after setting message and severity
+    useEffect(() => {
+      if (alertMessage && severity) {
+        setOpen(true);
+      }
+    }, [alertMessage, severity]);
+
+
+  const handleClose = () => {
+    setOpen(false); // Close Snackbar
   };
 
   return (
@@ -232,6 +276,19 @@ function Participant({ onClose }) {
             </form>
           </PopUp>
         )}
+
+        {/* Snackbar for success or error message */}
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}>
+              <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {alertMessage}
+              </div>
+              </Alert>
+            </Snackbar>
       </section>
     </PopUp>
   );

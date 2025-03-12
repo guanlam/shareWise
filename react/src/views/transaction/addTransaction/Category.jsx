@@ -11,6 +11,9 @@ import iconList from "../../icon-all-category"; // Icon mapping for categories
 import SettingsIcon from '@mui/icons-material/Settings';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 
 function DropdownOptions({ categoryId, onDelete, onEdit }) {
   const dropdownRef = useRef(null);
@@ -58,6 +61,12 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
   //edit
   const [showEditPopUp, setShowEditPopUp] = useState(false);
   const [editCategory, setEditCategory] = useState(null); // The category being edited
+
+
+  // State for Snackbar visibility and message
+    const [open, setOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [severity, setSeverity] = useState('success'); // 'success' or 'error'
 
 
   useEffect(() => {
@@ -152,7 +161,10 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
     e.preventDefault();
 
     if (!categoryName || !selectedIcon) {
-      alert("Please fill all required fields.");
+      // alert("Please fill all required fields.");
+      setAlertMessage("Please enter all fields");
+      setSeverity('error');
+      setOpen(true);
       return;
     }
 
@@ -169,8 +181,26 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
         console.log(res);
         fetchCategories(); // Refresh category list after adding
         closePopUp();
+
+        setAlertMessage('Cateogory created successfully!');
+        setSeverity('success'); // Set to success
+
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+      });
+
+      // // Open the error Snackbar
+      // setOpen(true);
   };
 
   //delete category
@@ -181,9 +211,28 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
         console.log(response);
         fetchCustomeCategories();
         setOpenCategory(null);
+
+        setAlertMessage('Category deleted successfully!');
+        setSeverity('success');
         
       })
-      .catch((err) => console.error("Error deleting category:", err));
+      .catch((err) => {
+        console.error("Error deleting category:", err);
+
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+      
+      });
+
+      // // Open the error Snackbar
+      // setOpen(true);
 
   };
 
@@ -204,7 +253,9 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
     e.preventDefault();
     
     if (!categoryName || !selectedIcon) {
-      alert("Please fill all required fields.");
+      // alert("Please fill all required fields.");
+      setAlertMessage("Please fill all required fields."); // Set error messages to be displayed
+      setSeverity('error');
       return;
     }
   
@@ -229,10 +280,40 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
         setCategoryName("");
         setSelectedIcon(null);
         setColorValue("#1c312c");
+
+        setAlertMessage('Category updated successfully');
+        setSeverity('success');
       })
-      .catch((err) => console.error("Error editing category:", err));
+      .catch((err) => {
+        console.error("Error editing category:", err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+
+      });
+
+      // setOpen(true);// Open Snackbar
   };
   
+
+
+  // Open the Snackbar after setting message and severity
+    useEffect(() => {
+      if (alertMessage && severity) {
+        setOpen(true);
+      }
+    }, [alertMessage, severity]);
+
+
+  const handleClose = () => {
+    setOpen(false); // Close Snackbar
+  };
 
   return (
     <>
@@ -418,7 +499,18 @@ function Category({ transaction , setTransaction ,selectedCategory ,setSelectedC
         )}
 
 
-
+      {/* Snackbar for success or error message */}
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}>
+              <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {alertMessage}
+              </div>
+              </Alert>
+            </Snackbar>
       </div>
     </>
   );

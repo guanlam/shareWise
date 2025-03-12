@@ -7,8 +7,16 @@ import axiosClient from "../axios-client";
 import iconMappings from "../icon-mappings";
 import { format } from "date-fns";
 
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 function AddBudget({onClose, setBudgets, refreshBudgets}) {
+
+    // State for Snackbar visibility and message
+    const [open, setOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [severity, setSeverity] = useState('success'); // 'success' or 'error'
+
     // State for the budget form (for adding a new budget)
     const [budget, setBudget] = useState({
         name: "",
@@ -69,12 +77,47 @@ function AddBudget({onClose, setBudgets, refreshBudgets}) {
       .post("/budgets", budget)
       .then((res) => {
         // Refresh budgets list after adding
-        refreshBudgets();
-        onClose();
-        console.log("Budget stored:", res.data.budget);
+        setAlertMessage('Budget created successfully!');
+        setSeverity('success'); // Set to success
+        
+
+        // Add a 1-second delay before calling onDelete
+        setTimeout(() => {
+          refreshBudgets();
+          onClose();
+        }, 1000); // 1000 milliseconds = 1 second
+
+        
+        // console.log("Budget stored:", res.data.budget);
+
+        
         
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+      });
+
+      
+  };
+
+  // Open the Snackbar after setting message and severity
+    useEffect(() => {
+      if (alertMessage && severity) {
+        setOpen(true);
+      }
+    }, [alertMessage, severity]);
+
+  const handleClose = () => {
+    setOpen(false); // Close Snackbar
   };
 
   return (
@@ -168,6 +211,19 @@ function AddBudget({onClose, setBudgets, refreshBudgets}) {
         </div>
       </div>
     </form>
+
+    {/* Snackbar for success or error message */}
+          <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+          }}>
+            <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+            <div style={{ whiteSpace: 'pre-line' }}>
+              {alertMessage}
+            </div>
+            </Alert>
+          </Snackbar>
     
   </PopUp>
     

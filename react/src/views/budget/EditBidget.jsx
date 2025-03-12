@@ -7,7 +7,17 @@ import axiosClient from "../axios-client";
 import iconMappings from "../icon-mappings";
 import { format } from "date-fns";
 
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 function EditBudget({ onClose, editBudget, refreshBudgets }) {
+
+  // State for Snackbar visibility and message
+  const [open, setOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [severity, setSeverity] = useState('success'); // 'success' or 'error'
+
+
   // Initialize local state with the passed editBudget data
   const [budget, setBudget] = useState({
     name: editBudget.name || "",
@@ -89,12 +99,46 @@ function EditBudget({ onClose, editBudget, refreshBudgets }) {
       .put(`/budgets/${editBudget.id}`, budget)
       .then((res) => {
         console.log("Budget updated:", res.data.budget);
-        onClose(); // Close the pop-up after updating
-        // Optionally, trigger a refresh of the budget list in the parent component
-        refreshBudgets();
+        setAlertMessage('Budget updated successfully!');
+        setSeverity('success');
+
+        // Add a 1-second delay before calling onDelete
+        setTimeout(() => {
+          onClose(); // Close the pop-up after updating
+          // Optionally, trigger a refresh of the budget list in the parent component
+          refreshBudgets();
+        }, 1000); // 1000 milliseconds = 1 second
+
+        
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+      });
+    
   };
+
+
+  // Open the Snackbar after setting message and severity
+    useEffect(() => {
+      if (alertMessage && severity) {
+        setOpen(true);
+      }
+    }, [alertMessage, severity]);
+    
+
+  const handleClose = () => {
+    setOpen(false); // Close Snackbar
+  };
+
 
   return (
     <PopUp title="Edit Budget" onClose={onClose}>
@@ -201,6 +245,19 @@ function EditBudget({ onClose, editBudget, refreshBudgets }) {
           />
         </div>
       </form>
+
+      {/* Snackbar for success or error message */}
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}>
+              <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {alertMessage}
+              </div>
+              </Alert>
+            </Snackbar>
     </PopUp>
   );
 }

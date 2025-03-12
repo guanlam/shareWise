@@ -5,6 +5,9 @@ import iconMappings from "../icon-mappings";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axiosClient from "../axios-client";
 
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEditPopUp, refreshBudgets, refreshArchiveBudgets,isArchived }) {
   const totalSpent = calculateBudgetProgress(budget, transactions);
   const progressPercent = (totalSpent / budget.amount) * 100;
@@ -15,6 +18,13 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
 
   // Ref to detect click outside
   const dropdownRef = useRef(null);
+
+
+  // State for Snackbar visibility and message
+    const [open, setOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [severity, setSeverity] = useState('success'); // 'success' or 'error'
+
 
   // Toggle visibility of buttons
   const toggleOptions = () => {
@@ -50,10 +60,34 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
       .delete(`/budgets/${budget.id}`)
       .then(() => {
         if (onDelete) {
-          onDelete(budget.id);
+
+          setAlertMessage('Budget deleted successfully!');
+          setSeverity('success');
+          
+
+          // Add a 1-second delay before calling onDelete
+          setTimeout(() => {
+            onDelete(budget.id);
+            refreshBudgets();
+            refreshArchiveBudgets();
+          }, 1000); // 1000 milliseconds = 1 second
+          
         }
       })
-      .catch((err) => console.error("Error deleting budget:", err));
+      .catch((err) => {
+        console.error("Error deleting budget:", err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(err.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
+      });
+      // Open the success Snackbar
+      // setOpen(true);
   };
 
   // Handle unarchive - toggle archived to false
@@ -62,13 +96,26 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
       .patch(`/budgets/${budgetId}/unarchive`)
       .then((response) => {
         console.log(response.data.message);
+        setAlertMessage('Budget unarchive successfully!');
+          setSeverity('success');
         // Refresh the budgets after unarchiving
         refreshBudgets();
         refreshArchiveBudgets();
       })
       .catch((error) => {
         console.error("There was an error unarchiving the budget:", error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(error.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
       });
+      // Open the success Snackbar
+      // setOpen(true);
   };
 
   // Handle Archive - Toggle archived to true
@@ -77,14 +124,43 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
       .patch(`/budgets/${budgetId}/archive`)
       .then((response) => {
         console.log(response.data.message);
+        setAlertMessage('Budget archive successfully!');
+        setSeverity('success');
         // Refresh the budgets after archiving
         refreshBudgets();
         refreshArchiveBudgets();
       })
       .catch((error) => {
         console.error("There was an error archiving the budget:", error);
+        if (error.response && error.response.data && error.response.data.errors) {
+          // Extract error messages from the `errors` object
+          const errorMessages = Object.values(error.response.data.errors)
+            .flat() // Flatten the array of errors for each field
+            .join('\n'); // Join them into a single string
+  
+          setAlertMessage(errorMessages); // Set error messages to be displayed
+          setSeverity('error'); // Set to error
+        }
       });
+
+      // Open the success Snackbar
+      // setOpen(true);
   };
+
+
+  // Open the Snackbar after setting message and severity
+  useEffect(() => {
+    if (alertMessage && severity) {
+      setOpen(true);
+    }
+  }, [alertMessage, severity]);
+  // The way the useEffect is currently set up, it will trigger only when both alertMessage and severity change.
+
+
+  const handleClose = () => {
+    setOpen(false); // Close Snackbar
+  };
+
 
   return (
     <div className="flex border flex-col border-light-gray rounded-lg p-4 gap-4">
@@ -149,6 +225,20 @@ function BudgetCard({ budget, transactions, onDelete, setEditBudget, setShowEdit
         </p>
         <p className="text-supersmall font-bold">RM{(budget.amount - totalSpent).toFixed(2)} Left</p>
       </div>
+
+
+      {/* Snackbar for success or error message */}
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}>
+              <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
+              <div style={{ whiteSpace: 'pre-line' }}>
+                {alertMessage}
+              </div>
+              </Alert>
+            </Snackbar>
     </div>
   );
 }
