@@ -40,37 +40,37 @@
                 </div>
             </div>
 
-            <!-- Categorized Expenses -->
-            <div class="section">
-                <h2>Categorized Expenses</h2>
-                <!-- Instead of Chart.js (which won’t work in emails), include a static image or list -->
-                @if(isset($reportData['expenseChartUrl']))
-                    <img src="{{ $reportData['expenseChartUrl'] }}" alt="Expense Chart" style="max-width: 320px; display: block; margin: 0 auto;">
+            @if(($reportData['totalIncome'] ?? 0) == 0 && ($reportData['totalSpending'] ?? 0) == 0)
+                <!-- Message if no transactions are recorded -->
+                <div class="section">
+                    <h2>No Transactions Recorded</h2>
+                    <p>You did not record any transactions for this month. Please make sure to log your income and expenses regularly to get a comprehensive financial report.</p>
+                </div>
+            @else
+                <!-- Categorized Expenses Section -->
+                <div class="section">
+                    <h2>Categorized Expenses</h2>
+                    @if(isset($reportData['expenseChartUrl']))
+                        <img src="{{ $reportData['expenseChartUrl'] }}" alt="Expense Chart" style="max-width: 320px; display: block; margin: 0 auto;">
+                    @endif
+                </div>
+
+                <!-- Expense Breakdown Table -->
+                @if(isset($reportData['expenseChartLabels']))
+                    @foreach($reportData['expenseChartLabels'] as $index => $label)
+                        <p>{{ $label }}</p>
+                        <p>RM {{ number_format($reportData['expenseChartData'][$index] ?? 0, 2) }}</p>
+                    @endforeach
                 @endif
-            </div>
 
-
-            <!-- Show Expense Labels and Data in a Table -->
-            
-            @foreach($reportData['expenseChartLabels'] ?? [] as $index => $label)
-                
-                    <p>{{ $label }}</p>
-                    <p>RM {{ number_format($reportData['expenseChartData'][$index] ?? 0, 2) }}</p>
-                
-            @endforeach
-
-
-            <p style="text-align:center; margin-top: 1rem; font-size:.8rem;">
-                If you'd like to view more detailed information about your transactions: 
-                <a href="{{ route('report.download', ['userId' => $reportData['user'], 'month' => $reportData['monthYear']]) }}"
-
-                style="display:inline-block; padding:10px 20px; background-color:#1c312c; color:#fff; text-decoration:none; border-radius:5px; margin-top: 1rem;">
-                    Download the full transaction report
-                </a>
-            </p>
-
-
-                    
+                <p style="text-align:center; margin-top: 1rem; font-size:.8rem;">
+                    If you'd like to view more detailed information about your transactions: 
+                    <a href="{{ route('report.download', ['userId' => $reportData['user'], 'month' => $reportData['monthYear']]) }}"
+                       style="display:inline-block; padding:10px 20px; background-color:#1c312c; color:#fff; text-decoration:none; border-radius:5px; margin-top: 1rem;">
+                        Download the full transaction report
+                    </a>
+                </p>
+            @endif
         </div>
 
         <!-- Footer Section -->
