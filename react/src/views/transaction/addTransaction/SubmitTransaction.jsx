@@ -52,6 +52,10 @@ function SubmitTransaction({ transaction, action }) {
     }
   };
 
+  const handleCancel = () => {
+    navigate('/transaction'); // Navigate to the transaction list
+  }
+
   const handleClose = () => {
     setOpen(false); // Close Snackbar
   };
@@ -59,7 +63,7 @@ function SubmitTransaction({ transaction, action }) {
   return (
     <div>
       <div className='flex justify-between items-center'>
-        <button className='border border-black w-[30%] p-4 rounded-md uppercase'>Cancel</button>
+        <button onClick={handleCancel} className='border border-black w-[30%] p-4 rounded-md uppercase'>Cancel</button>
         <button onClick={handleSubmit} className='bg-dark-green text-white w-[30%] p-4 rounded-md uppercase'>
           {action === 'add' ? 'Save' : 'Update'}
         </button>

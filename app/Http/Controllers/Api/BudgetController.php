@@ -80,7 +80,7 @@ class BudgetController extends Controller
         // Validate the request data and update the budget in one step
         $budget->update($request->validate([
             'name' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:Expense,Income',
             'category_id' => 'required|exists:categories,id',
             'start_date' => 'required|date',

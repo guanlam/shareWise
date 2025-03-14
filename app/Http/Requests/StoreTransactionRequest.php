@@ -23,7 +23,7 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'date' => 'required|date',
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:Income,Expense',
             'description' => 'nullable|string',
             'group_expense' => 'boolean',
@@ -54,6 +54,8 @@ class StoreTransactionRequest extends FormRequest
             'date.date' => 'Please provide a valid date.',
             'amount.required' => 'The amount field is required.',
             'amount.numeric' => 'The amount must be a valid number.',
+            'amount.min' => 'The amount must be a positive number.',
+
             'type.required' => 'The type field is required.',
             'type.in' => 'The type must be either "Income" or "Expense".',
             'description.string' => 'The description must be a valid string.',
