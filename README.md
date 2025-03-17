@@ -2,7 +2,15 @@
 
 ## Overview
 
-ShareWise is a personal finance tracking system designed to help users manage income, expenses, and savings efficiently. Built with Laravel, this application provides features such as categorized expense tracking, financial reports, group expense management, budgeting forecasts, and AI-driven spending analysis.
+ShareWise is a personal finance tracking system designed to help users manage income, expenses, and savings efficiently. Built with Laravel and React, this application provides features such as categorized expense tracking, financial reports, group expense management, budgeting forecasts, and AI-driven spending analysis.
+
+## Tech Stack
+
+- **Backend:** Laravel (PHP)
+- **Frontend:** React (JavaScript)
+- **Database:** MySQL
+- **Authentication:** Laravel Sanctum
+- **Email Service:** MailerSend
 
 ## Features
 
@@ -18,7 +26,7 @@ ShareWise is a personal finance tracking system designed to help users manage in
 - **New Expense Alert:** Participants receive a notification when a group expense is created.
 - **Payment Reminder:** Users with outstanding balances are reminded to settle their dues.
 - **Payment Confirmation:** When a participant marks their share as paid, others are notified.
-- **Delivery Methods:** Notifications are sent via email and in-app alerts.
+- **Delivery Methods:** Notifications are sent via email.
 
 ## Forecast & Budgeting
 
@@ -58,28 +66,7 @@ ShareWise is a personal finance tracking system designed to help users manage in
 ### Monthly Report
 ![MonthlyReport](https://github.com/user-attachments/assets/f9d398dd-284c-4b2a-9199-d8c0879b4060)
 
-## Email Configuration (MailerSend)
 
-Update `.env` with:
-
-```
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailersend.net
-MAIL_PORT=587
-MAIL_USERNAME=your_mailersend_api_key
-MAIL_PASSWORD=your_mailersend_secret
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=your-email@example.com
-MAIL_FROM_NAME="ShareWise"
-```
-
-## Contribution Guidelines
-
-1. Fork the repository.
-2. Create a new branch (`feature-branch`).
-3. Commit changes (`git commit -m "Add new feature"`).
-4. Push to your fork (`git push origin feature-branch`).
-5. Create a Pull Request.
 
 ## License
 
