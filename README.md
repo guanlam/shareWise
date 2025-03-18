@@ -24,7 +24,6 @@ ShareWise is a personal finance tracking system designed to help users manage in
 ## Group Expense Notifications
 
 - **New Expense Alert:** Participants receive a notification when a group expense is created.
-- **Payment Reminder:** Users with outstanding balances are reminded to settle their dues.
 - **Payment Confirmation:** When a participant marks their share as paid, others are notified.
 - **Delivery Methods:** Notifications are sent via email.
 
