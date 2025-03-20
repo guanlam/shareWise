@@ -49,12 +49,15 @@ ShareWise is a personal finance tracking system designed to help users manage in
 
 ### Add Group Expense Transaction
 ![AddTransactionGroupExpense](https://github.com/user-attachments/assets/b3e32d47-0ff3-4eec-9a91-5daf96dfbf76)
+- This figure shows the Transaction Page with Group Expense functionality, where users can toggle a button to enable group expense management. Users can select participants and assign amounts for each one. By default, the total amount is fairly divided among the participants, but users can manually adjust the amounts for each participant as needed. Additionally, a settings button beside the toggle allows users  to add participants or manage existing participants.
 
 ### Budget Planning
 ![budget](https://github.com/user-attachments/assets/d0f14f15-08be-48c4-9395-f90faae51c50)
+- This figure displays the Budget Page, where users can set and track their financial budgets. The page allows users to define budget limits for specific categories (e.g., Food, Shopping, Entertainment) and view their current spending in comparison to the set budget. Users can update or delete budget details, as well as monitor their progress through visual aids such as  progress bars, ensuring they stay within their financial limits.
 
 ### Forecast Analysis
 ![forecast](https://github.com/user-attachments/assets/d02576c8-89fa-4a06-84da-628b7cb53b8f)
+- This figure shows the Forecast Page, where users can view their predicted spending for the upcoming period based on historical data. The page displays a single forecasted expense value, represented visually through a chart or graph, providing users with an overview of their expected future spending. Users can adjust their budgets based on this forecast to better plan their finances.
 
 ### AI Budget Suggestions
 ![AISuggestion](https://github.com/user-attachments/assets/cdabac2f-d449-4e12-9f25-f37cc1ca2650)
