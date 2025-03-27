@@ -64,7 +64,7 @@ class TransactionController extends Controller
                  'user_id' => auth()->id(),
              ]);
      
-             // ✅ Save Participants If Group Expense is True
+             //  Save Participants If Group Expense is True
              if ($data['group_expense']) {
                  foreach ($data['participants'] as $participantData) {
                      $transaction->participants()->attach($participantData['participant_id'], [
@@ -74,7 +74,7 @@ class TransactionController extends Controller
                  }
              }
      
-             // ✅ If recurrence is true, create a recurrence record
+             //  If recurrence is true, create a recurrence record
              if ($data['recurrence']) {
                  Recurrence::create([
                      'transaction_id' => $transaction->id,
@@ -85,7 +85,7 @@ class TransactionController extends Controller
      
              DB::commit(); // Commit the transaction
      
-             // ----- STEP 3: Send Email Notifications for Group Expense -----
+             //STEP 3: Send Email Notifications for Group Expense -----
              if ($data['group_expense']) {
                  // Optionally load the transaction's user (creator) if needed in the email
                  $transaction->load('user');
